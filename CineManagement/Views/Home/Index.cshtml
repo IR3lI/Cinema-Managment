@@ -1,0 +1,126 @@
+@model MovieIndexViewModel
+@{
+    ViewData["Title"] = "Trang chủ – Phim đang chiếu";
+    Layout = "_Layout";
+}
+
+<!-- Hero -->
+<div class="p-4 mb-4 rounded-3" style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff">
+    <div class="d-flex align-items-center">
+        <div>
+            <h2 class="fw-bold">🎬 CineManagement</h2>
+            <p class="text-warning mb-0">Hệ thống quản lý rạp chiếu phim</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filter (SCRUM-10) -->
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-5">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" name="search" value="@Model.SearchTerm" class="form-control" placeholder="Tìm phim theo tên, đạo diễn, diễn viên..." />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <select name="genreId" class="form-select">
+            <option value="">– Tất cả thể loại –</option>
+            @foreach (var g in Model.Genres)
+            {
+                <option value="@g.Value" selected="@(g.Value == Model.GenreId?.ToString())">@g.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">Đang & Sắp chiếu</option>
+            <option value="0" selected="@(Model.Status == MovieStatus.ComingSoon)">Sắp chiếu</option>
+            <option value="1" selected="@(Model.Status == MovieStatus.NowShowing)">Đang chiếu</option>
+            <option value="2" selected="@(Model.Status == MovieStatus.Ended)">Kết thúc</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">
+            <i class="bi bi-funnel me-1"></i>Lọc
+        </button>
+    </div>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.GenreId.HasValue || Model.Status.HasValue)
+{
+    <div class="mb-3">
+        <span class="text-muted">Kết quả tìm kiếm:</span>
+        <span class="badge bg-dark ms-1">@Model.Movies.Count() phim</span>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary ms-2">
+            <i class="bi bi-x me-1"></i>Xóa bộ lọc
+        </a>
+    </div>
+}
+
+<!-- Movie grid -->
+@if (!Model.Movies.Any())
+{
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-film fs-1"></i>
+        <h5 class="mt-3">Không tìm thấy phim nào.</h5>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var movie in Model.Movies)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100 shadow-sm movie-card">
+                    <a asp-action="MovieDetail" asp-route-id="@movie.MovieId">
+                        @if (!string.IsNullOrEmpty(movie.PosterUrl))
+                        {
+                            <img src="@movie.PosterUrl" class="card-img-top" alt="@movie.Title" style="height:280px;object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-secondary d-flex align-items-center justify-content-center text-white" style="height:280px">
+                                <i class="bi bi-film fs-1"></i>
+                            </div>
+                        }
+                    </a>
+                    <div class="card-body p-2">
+                        <div class="mb-1">
+                            @switch (movie.Status)
+                            {
+                                case MovieStatus.NowShowing:
+                                    <span class="badge bg-success">Đang chiếu</span>
+                                    break;
+                                case MovieStatus.ComingSoon:
+                                    <span class="badge bg-warning text-dark">Sắp chiếu</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">Kết thúc</span>
+                                    break;
+                            }
+                            @if (!string.IsNullOrEmpty(movie.AgeRating))
+                            {
+                                <span class="badge bg-danger ms-1">@movie.AgeRating</span>
+                            }
+                        </div>
+                        <h6 class="card-title fw-bold mb-1">
+                            <a asp-action="MovieDetail" asp-route-id="@movie.MovieId" class="text-dark text-decoration-none">
+                                @movie.Title
+                            </a>
+                        </h6>
+                        <p class="text-muted small mb-1">@movie.Duration phút • @(movie.Genre?.Name ?? "")</p>
+                        @if (movie.Rating > 0)
+                        {
+                            <small class="text-warning"><i class="bi bi-star-fill"></i> @movie.Rating</small>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent border-0 p-2">
+                        <a asp-action="MovieDetail" asp-route-id="@movie.MovieId" class="btn btn-outline-dark btn-sm w-100">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

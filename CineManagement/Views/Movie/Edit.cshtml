@@ -1,0 +1,128 @@
+@model MovieFormViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa phim";
+    Layout = "_AdminLayout";
+}
+
+<div class="table-container">
+    <div class="d-flex align-items-center mb-4">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h5 class="fw-bold mb-0">
+            <i class="bi bi-pencil-square me-2 text-primary"></i>Chỉnh sửa phim
+        </h5>
+    </div>
+
+    <form asp-action="Edit" asp-route-id="@Model.MovieId" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <input type="hidden" asp-for="MovieId" />
+
+        <div class="row g-4">
+            <!-- Left column -->
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-semibold"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Director" class="form-label fw-semibold"></label>
+                        <input asp-for="Director" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Duration" class="form-label fw-semibold"></label>
+                        <div class="input-group">
+                            <input asp-for="Duration" class="form-control" type="number" min="1" />
+                            <span class="input-group-text">phút</span>
+                        </div>
+                        <span asp-validation-for="Duration" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-3">
+                    <label asp-for="Actors" class="form-label fw-semibold"></label>
+                    <input asp-for="Actors" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TrailerUrl" class="form-label fw-semibold"></label>
+                    <input asp-for="TrailerUrl" class="form-control" />
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="ReleaseDate" class="form-label fw-semibold"></label>
+                        <input asp-for="ReleaseDate" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EndDate" class="form-label fw-semibold"></label>
+                        <input asp-for="EndDate" type="date" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right column -->
+            <div class="col-md-4">
+                @if (!string.IsNullOrEmpty(Model.PosterUrl))
+                {
+                    <img src="@Model.PosterUrl" class="img-fluid rounded mb-2" alt="Poster hiện tại" />
+                }
+                <div class="mb-3">
+                    <label asp-for="PosterFile" class="form-label fw-semibold"></label>
+                    <input asp-for="PosterFile" type="file" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="GenreId" class="form-label fw-semibold"></label>
+                    <select asp-for="GenreId" asp-items="Model.Genres" class="form-select">
+                        <option value="">– Chọn thể loại –</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label fw-semibold"></label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="0">Sắp chiếu</option>
+                        <option value="1">Đang chiếu</option>
+                        <option value="2">Đã kết thúc</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AgeRating" class="form-label fw-semibold"></label>
+                    <select asp-for="AgeRating" asp-items="Model.AgeRatings" class="form-select">
+                        <option value="">– Chọn –</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Language" class="form-label fw-semibold"></label>
+                    <input asp-for="Language" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Rating" class="form-label fw-semibold"></label>
+                    <input asp-for="Rating" class="form-control" type="number" min="0" max="10" step="0.1" />
+                </div>
+            </div>
+        </div>
+
+        <hr />
+        <button type="submit" class="btn btn-warning fw-bold me-2">
+            <i class="bi bi-save me-1"></i>Lưu thay đổi
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

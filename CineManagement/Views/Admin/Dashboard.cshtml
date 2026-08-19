@@ -1,0 +1,121 @@
+@model IEnumerable<Movie>
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card bg-primary text-white shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-film fs-1 me-3 opacity-75"></i>
+                <div>
+                    <div class="fs-2 fw-bold">@ViewBag.TotalMovies</div>
+                    <div class="small opacity-75">Tổng số phim</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card bg-success text-white shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-play-circle fs-1 me-3 opacity-75"></i>
+                <div>
+                    <div class="fs-2 fw-bold">@ViewBag.NowShowing</div>
+                    <div class="small opacity-75">Đang chiếu</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card bg-warning text-dark shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-clock fs-1 me-3 opacity-75"></i>
+                <div>
+                    <div class="fs-2 fw-bold">@ViewBag.ComingSoon</div>
+                    <div class="small opacity-75">Sắp chiếu</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card bg-info text-white shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-people fs-1 me-3 opacity-75"></i>
+                <div>
+                    <div class="fs-2 fw-bold">@ViewBag.TotalStaff</div>
+                    <div class="small opacity-75">Nhân viên</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0"><i class="bi bi-film me-2"></i>Phim mới thêm gần đây</h5>
+        <a asp-controller="Movie" asp-action="Create" class="btn btn-warning btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>Thêm phim mới
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Tên phim</th>
+                    <th>Thể loại</th>
+                    <th>Trạng thái</th>
+                    <th>Đánh giá</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var movie in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@movie.Title</div>
+                            <small class="text-muted">@movie.Director</small>
+                        </td>
+                        <td><span class="badge bg-secondary">@(movie.Genre?.Name ?? "–")</span></td>
+                        <td>
+                            @switch (movie.Status)
+                            {
+                                case MovieStatus.NowShowing:
+                                    <span class="badge bg-success">Đang chiếu</span>
+                                    break;
+                                case MovieStatus.ComingSoon:
+                                    <span class="badge bg-warning text-dark">Sắp chiếu</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">Kết thúc</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @if (movie.Rating > 0)
+                            {
+                                <span class="text-warning"><i class="bi bi-star-fill"></i> @movie.Rating</span>
+                            }
+                            else { <span class="text-muted">–</span> }
+                        </td>
+                        <td>
+                            <a asp-controller="Movie" asp-action="Edit" asp-route-id="@movie.MovieId" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (!Model.Any())
+        {
+            <p class="text-muted text-center py-3">Chưa có phim nào.</p>
+        }
+    </div>
+
+    <a asp-controller="Movie" asp-action="Index" class="btn btn-outline-primary btn-sm">
+        Xem tất cả phim <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+</div>
