@@ -4,64 +4,133 @@
     Layout = "_Layout";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm mt-4">
-            <div class="card-body p-4">
-                <div class="text-center mb-4">
-                    <i class="bi bi-camera-reels fs-1 text-warning"></i>
-                    <h3 class="mt-2 fw-bold">Đăng ký</h3>
-                    <p class="text-muted">Tạo tài khoản khách hàng mới</p>
+<div class="flex items-center justify-center py-6 md:py-10">
+    <div class="w-full max-w-xl">
+        <!-- Register Card -->
+        <div class="rounded-2xl border border-zinc-800/80 bg-zinc-900/70 p-8 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+            <!-- Background Glow Effect -->
+            <div class="absolute -top-24 -left-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+
+            <!-- Card Header -->
+            <div class="text-center mb-8 relative z-10">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 shadow-inner">
+                    <i class="ph-bold ph-user-plus text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight text-zinc-100">Đăng ký tài khoản</h2>
+                <p class="mt-1.5 text-sm text-zinc-400">Trải nghiệm đặt vé xem phim nhanh chóng và ưu đãi thành viên</p>
+            </div>
+
+            <!-- Form -->
+            <form asp-action="Register" method="post" class="space-y-5 relative z-10">
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                {
+                    <div asp-validation-summary="ModelOnly" class="rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-400 flex items-start gap-2.5">
+                        <i class="ph-bold ph-warning-circle text-lg shrink-0 mt-0.5"></i>
+                        <div>@Html.ValidationSummary(true)</div>
+                    </div>
+                }
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- FullName Input -->
+                    <div class="space-y-1.5">
+                        <label asp-for="FullName" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">Họ và tên</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                                <i class="ph ph-user text-lg"></i>
+                            </div>
+                            <input asp-for="FullName" 
+                                   class="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all" 
+                                   placeholder="Nguyễn Văn A" />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-xs text-red-400"></span>
+                    </div>
+
+                    <!-- Email Input -->
+                    <div class="space-y-1.5">
+                        <label asp-for="Email" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">Địa chỉ Email</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                                <i class="ph ph-envelope-simple text-lg"></i>
+                            </div>
+                            <input asp-for="Email" 
+                                   class="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all" 
+                                   placeholder="name@example.com" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-xs text-red-400"></span>
+                    </div>
+
+                    <!-- PhoneNumber Input -->
+                    <div class="space-y-1.5">
+                        <label asp-for="PhoneNumber" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">Số điện thoại</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                                <i class="ph ph-phone text-lg"></i>
+                            </div>
+                            <input asp-for="PhoneNumber" 
+                                   class="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all" 
+                                   placeholder="0901234567" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="text-xs text-red-400"></span>
+                    </div>
+
+                    <!-- DateOfBirth Input -->
+                    <div class="space-y-1.5">
+                        <label asp-for="DateOfBirth" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">Ngày sinh</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                                <i class="ph ph-calendar-blank text-lg"></i>
+                            </div>
+                            <input asp-for="DateOfBirth" type="date"
+                                   class="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-11 pr-4 py-3 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all [color-scheme:dark]" />
+                        </div>
+                        <span asp-validation-for="DateOfBirth" class="text-xs text-red-400"></span>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="space-y-1.5">
+                        <label asp-for="Password" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">Mật khẩu</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                                <i class="ph ph-lock-key text-lg"></i>
+                            </div>
+                            <input asp-for="Password" type="password"
+                                   class="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all" 
+                                   placeholder="Tối thiểu 6 ký tự" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-xs text-red-400"></span>
+                    </div>
+
+                    <!-- ConfirmPassword Input -->
+                    <div class="space-y-1.5">
+                        <label asp-for="ConfirmPassword" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">Xác nhận mật khẩu</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                                <i class="ph ph-shield-check text-lg"></i>
+                            </div>
+                            <input asp-for="ConfirmPassword" type="password"
+                                   class="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all" 
+                                   placeholder="Nhập lại mật khẩu" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-xs text-red-400"></span>
+                    </div>
                 </div>
 
-                <form asp-action="Register" method="post">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 hover:scale-[0.99] active:scale-[0.97] transition-all mt-6">
+                    <i class="ph-bold ph-user-plus text-lg"></i>
+                    Đăng ký tài khoản
+                </button>
+            </form>
 
-                    <div class="mb-3">
-                        <label asp-for="FullName" class="form-label fw-semibold"></label>
-                        <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
-                        <span asp-validation-for="FullName" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label fw-semibold"></label>
-                        <input asp-for="Email" class="form-control" placeholder="email@example.com" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
-                        <input asp-for="PhoneNumber" class="form-control" placeholder="0901234567" />
-                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="DateOfBirth" class="form-label fw-semibold"></label>
-                        <input asp-for="DateOfBirth" type="date" class="form-control" />
-                        <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label fw-semibold"></label>
-                        <input asp-for="Password" class="form-control" placeholder="Tối thiểu 6 ký tự" />
-                        <span asp-validation-for="Password" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-4">
-                        <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
-                        <input asp-for="ConfirmPassword" class="form-control" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                    </div>
-
-                    <button type="submit" class="btn btn-warning w-100 fw-bold py-2">
-                        <i class="bi bi-person-plus me-2"></i>Đăng ký
-                    </button>
-                </form>
-
-                <hr />
-                <p class="text-center mb-0 text-muted">
+            <!-- Card Footer -->
+            <div class="mt-8 border-t border-zinc-800/80 pt-6 text-center text-sm text-zinc-400 relative z-10">
+                <p>
                     Đã có tài khoản?
-                    <a asp-action="Login" class="text-warning fw-semibold">Đăng nhập</a>
+                    <a asp-action="Login" class="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors ml-1 hover:underline">
+                        Đăng nhập ngay
+                    </a>
                 </p>
             </div>
         </div>

@@ -1,0 +1,102 @@
+@model ScreeningRoom
+@{
+    ViewData["Title"] = $"Sơ đồ ghế – {Model.RoomName}";
+    Layout = "_AdminLayout";
+
+    var seatsByRow = Model.Seats
+        .Where(s => s.IsActive)
+        .GroupBy(s => s.RowLabel)
+        .OrderBy(g => g.Key)
+        .ToDictionary(g => g.Key, g => g.OrderBy(s => s.SeatNumber).ToList());
+}
+
+<style>
+    .seat-map { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .seat-row { display: flex; align-items: center; gap: 5px; }
+    .row-label { width: 24px; font-weight: 700; color: #6c757d; text-align: center; font-size:.85rem; }
+    .seat {
+        width: 34px; height: 30px; border-radius: 5px 5px 0 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: .65rem; font-weight: 600; cursor: default;
+        border: 2px solid transparent;
+    }
+    .seat-standard { background: #e9ecef; color: #495057; border-color: #ced4da; }
+    .seat-vip      { background: #fff3cd; color: #664d03; border-color: #ffc107; }
+    .seat-couple   { background: #cff4fc; color: #055160; border-color: #0dcaf0; width: 72px; }
+    .screen-bar {
+        width: 80%; height: 10px; background: linear-gradient(to bottom, #dee2e6, #adb5bd);
+        border-radius: 50% 50% 0 0; margin-bottom: 12px;
+    }
+</style>
+
+<div class="table-container">
+    <div class="d-flex align-items-center mb-4">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-3"><i class="bi bi-arrow-left"></i></a>
+        <div>
+            <h5 class="fw-bold mb-0">Sơ đồ ghế – @Model.RoomName</h5>
+            <small class="text-muted">
+                @switch (Model.RoomType)
+                {
+                    case RoomType.VIP:  <text>Phòng VIP</text>  break;
+                    case RoomType.IMAX: <text>Phòng IMAX</text> break;
+                    default:            <text>Phòng tiêu chuẩn</text> break;
+                }
+                &bull; @Model.Rows hàng &times; @Model.SeatsPerRow ghế = @(Model.Rows * Model.SeatsPerRow) ghế
+            </small>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="d-flex gap-3 mb-4 flex-wrap">
+        <div class="d-flex align-items-center gap-2">
+            <div class="seat seat-standard" style="pointer-events:none;font-size:.7rem">A1</div>
+            <span class="small text-muted">Ghế thường</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="seat seat-vip" style="pointer-events:none;font-size:.7rem">VIP</div>
+            <span class="small text-muted">Ghế VIP</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="seat seat-couple" style="pointer-events:none;font-size:.7rem">Đôi</div>
+            <span class="small text-muted">Ghế đôi</span>
+        </div>
+    </div>
+
+    <!-- Screen -->
+    <div class="text-center mb-1">
+        <div class="screen-bar mx-auto"></div>
+        <small class="text-muted fw-semibold">MÀN HÌNH</small>
+    </div>
+
+    <!-- Seat Map -->
+    <div class="seat-map my-4">
+        @foreach (var row in seatsByRow)
+        {
+            <div class="seat-row">
+                <div class="row-label">@row.Key</div>
+                @foreach (var seat in row.Value)
+                {
+                    string cls = seat.SeatType switch
+                    {
+                        SeatType.VIP    => "seat-vip",
+                        SeatType.Couple => "seat-couple",
+                        _               => "seat-standard"
+                    };
+                    <div class="seat @cls" title="@seat.RowLabel@seat.SeatNumber – @(seat.SeatType == SeatType.Standard ? "Thường" : seat.SeatType == SeatType.VIP ? "VIP" : "Đôi")">
+                        @seat.SeatNumber
+                    </div>
+                }
+                <div class="row-label">@row.Key</div>
+            </div>
+        }
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.RoomId" class="btn btn-primary me-2">
+            <i class="bi bi-pencil me-1"></i>Chỉnh sửa phòng
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại
+        </a>
+    </div>
+</div>

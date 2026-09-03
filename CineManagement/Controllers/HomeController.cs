@@ -53,7 +53,7 @@ public class HomeController : Controller
         return View(vm);
     }
 
-    // ── Movie Detail (public) ─────────────────────────────────────────────────
+    // ── Movie Detail (public) – SCRUM-14 ──────────────────────────────────────
     public async Task<IActionResult> MovieDetail(int id)
     {
         var movie = await _context.Movies
@@ -61,6 +61,22 @@ public class HomeController : Controller
             .FirstOrDefaultAsync(m => m.MovieId == id && m.IsActive);
 
         if (movie == null) return NotFound();
+
+        // Load upcoming showtimes (today onwards), grouped by date
+        var showtimes = await _context.Showtimes
+            .Include(s => s.Room)
+            .Where(s => s.MovieId == id
+                     && s.StartTime >= DateTime.Now
+                     && s.Status == ShowtimeStatus.Available)
+            .OrderBy(s => s.StartTime)
+            .ToListAsync();
+
+        var showtimesByDate = showtimes
+            .GroupBy(s => s.StartTime.Date)
+            .OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        ViewBag.ShowtimesByDate = showtimesByDate;
         return View(movie);
     }
 

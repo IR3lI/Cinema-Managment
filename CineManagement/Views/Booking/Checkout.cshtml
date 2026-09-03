@@ -1,0 +1,209 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Xác nhận & Thanh toán";
+    Layout = "_Layout";
+    var b = Model.Booking;
+}
+
+@section Styles {
+<style>
+    .pay-option { border: 1.5px solid #27272a; transition: all .2s; cursor: pointer; }
+    .pay-option:has(input:checked) { border-color: #10b981; background: rgba(16,185,129,.08); }
+    .pay-option:hover { border-color: #3f3f46; }
+    .pay-option input[type=radio] { accent-color: #10b981; width: 16px; height: 16px; }
+    .voucher-input:focus { outline: 2px solid #10b981; outline-offset: 0; }
+</style>
+}
+
+<!-- Step bar -->
+<div class="flex items-center gap-2 mb-8 text-sm">
+    <span class="flex items-center gap-1.5 text-zinc-500"><span class="w-6 h-6 rounded-full bg-zinc-700 text-zinc-400 flex items-center justify-center text-xs font-bold">1</span>Chọn ghế</span>
+    <div class="flex-1 h-px bg-zinc-800"></div>
+    <span class="flex items-center gap-1.5 text-zinc-500"><span class="w-6 h-6 rounded-full bg-zinc-700 text-zinc-400 flex items-center justify-center text-xs font-bold">2</span>Đồ ăn & nước</span>
+    <div class="flex-1 h-px bg-zinc-800"></div>
+    <span class="flex items-center gap-1.5 text-emerald-400 font-medium"><span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">3</span>Thanh toán</span>
+</div>
+
+<div class="flex gap-6 items-start">
+
+    <!-- LEFT: Details + voucher + payment -->
+    <div class="flex-1 min-w-0 space-y-4">
+
+        <!-- Movie info -->
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
+            <div class="flex items-start gap-4">
+                @if (!string.IsNullOrEmpty(b.Showtime?.Movie?.PosterUrl))
+                {
+                    <img src="@b.Showtime.Movie.PosterUrl" alt="Poster"
+                         class="w-16 h-24 object-cover rounded-xl flex-shrink-0 opacity-90" />
+                }
+                <div>
+                    <div class="text-lg font-bold text-zinc-100">@b.Showtime?.Movie?.Title</div>
+                    <div class="text-zinc-400 text-sm mt-1 space-y-0.5">
+                        <div><i class="ph ph-clock me-1"></i>@b.Showtime?.StartTime.ToString("HH:mm – dddd, dd/MM/yyyy")</div>
+                        <div><i class="ph ph-building me-1"></i>@b.Showtime?.Room?.RoomName</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        @foreach (var code in Model.SeatCodes)
+                        {
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold">@code</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- F&B summary -->
+        @if (b.BookingFoodItems?.Any() == true)
+        {
+            <div class="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
+                <h6 class="text-zinc-400 text-xs font-semibold uppercase tracking-widest mb-3">🍿 Đồ ăn & Nước uống</h6>
+                <div class="space-y-2">
+                    @foreach (var bf in b.BookingFoodItems)
+                    {
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-300">@bf.FoodItem?.Name <span class="text-zinc-500 ml-1">×@bf.Quantity</span></span>
+                            <span class="text-emerald-400 font-medium">@((bf.UnitPrice * bf.Quantity).ToString("N0")) đ</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Voucher -->
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
+            <h6 class="text-zinc-400 text-xs font-semibold uppercase tracking-widest mb-3">🎟 Mã giảm giá</h6>
+            <div class="flex gap-2">
+                <input type="text" id="voucherCode"
+                       class="voucher-input flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-zinc-100 text-sm placeholder-zinc-600 uppercase"
+                       placeholder="Nhập mã giảm giá..."
+                       value="@Model.VoucherCode"
+                       @(Model.VoucherApplied ? "readonly" : "") />
+                <button type="button" id="applyVoucherBtn"
+                        class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors
+                               @(Model.VoucherApplied ? "bg-emerald-600 text-white cursor-default" : "bg-zinc-700 hover:bg-zinc-600 text-zinc-100")"
+                        @(Model.VoucherApplied ? "disabled" : "")>
+                    @(Model.VoucherApplied ? "✓ Đã áp dụng" : "Áp dụng")
+                </button>
+            </div>
+            <p id="voucherMsg" class="mt-2 text-xs @(Model.VoucherApplied ? "text-emerald-400" : "text-red-400")">
+                @Model.VoucherMessage
+            </p>
+            <p class="mt-1 text-xs text-zinc-600">Thử: <span class="text-zinc-400 font-mono">CINEMA10</span> · <span class="text-zinc-400 font-mono">NEWUSER20</span> · <span class="text-zinc-400 font-mono">VIP30</span></p>
+        </div>
+
+        <!-- Payment method -->
+        <form asp-action="Pay" method="post" id="payForm">
+            <input type="hidden" name="bookingId" value="@Model.BookingId" />
+            <div class="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
+                <h6 class="text-zinc-400 text-xs font-semibold uppercase tracking-widest mb-3">💳 Phương thức thanh toán</h6>
+                <div class="space-y-2">
+                    <label class="pay-option flex items-center gap-3 p-4 rounded-xl">
+                        <input type="radio" name="paymentMethod" value="Cash" checked />
+                        <span class="text-2xl">💵</span>
+                        <div>
+                            <div class="text-sm font-semibold text-zinc-100">Tiền mặt tại quầy</div>
+                            <div class="text-xs text-zinc-500">Thanh toán khi đến rạp</div>
+                        </div>
+                    </label>
+                    <label class="pay-option flex items-center gap-3 p-4 rounded-xl">
+                        <input type="radio" name="paymentMethod" value="BankCard" />
+                        <span class="text-2xl">💳</span>
+                        <div>
+                            <div class="text-sm font-semibold text-zinc-100">Thẻ ngân hàng</div>
+                            <div class="text-xs text-zinc-500">Visa, Mastercard, ATM nội địa</div>
+                        </div>
+                    </label>
+                    <label class="pay-option flex items-center gap-3 p-4 rounded-xl">
+                        <input type="radio" name="paymentMethod" value="EWallet" />
+                        <span class="text-2xl">📱</span>
+                        <div>
+                            <div class="text-sm font-semibold text-zinc-100">Ví điện tử</div>
+                            <div class="text-xs text-zinc-500">MoMo, ZaloPay, VNPay</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- RIGHT: Order summary sticky -->
+    <div class="w-76 flex-shrink-0 sticky top-24" style="width:300px">
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900 overflow-hidden">
+            <div class="px-5 py-4 border-b border-zinc-800">
+                <div class="text-sm font-semibold text-zinc-100">Tóm tắt thanh toán</div>
+            </div>
+            <div class="px-5 py-4 space-y-3 text-sm border-b border-zinc-800">
+                <div class="flex justify-between text-zinc-400">
+                    <span>Ghế (@Model.SeatCodes.Count ghế)</span>
+                    <span class="text-zinc-200">@Model.SeatTotal.ToString("N0") đ</span>
+                </div>
+                @if (Model.FnBTotal > 0)
+                {
+                    <div class="flex justify-between text-zinc-400">
+                        <span>Đồ ăn & nước</span>
+                        <span class="text-zinc-200">@Model.FnBTotal.ToString("N0") đ</span>
+                    </div>
+                }
+                <div class="flex justify-between text-emerald-400">
+                    <span>Giảm giá</span>
+                    <span id="discountDisplay">–@Model.DiscountAmount.ToString("N0") đ</span>
+                </div>
+            </div>
+            <div class="px-5 py-4 border-b border-zinc-800">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-zinc-100">Thành tiền</span>
+                    <span class="text-xl font-black text-emerald-400" id="finalDisplay">
+                        @((Model.SubTotal - Model.DiscountAmount).ToString("N0")) đ
+                    </span>
+                </div>
+            </div>
+            <div class="px-5 py-4 space-y-2">
+                <button type="submit" form="payForm"
+                        class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                    <i class="ph ph-check-circle"></i> Xác nhận đặt vé
+                </button>
+                <a asp-action="AddFnB" asp-route-bookingId="@Model.BookingId"
+                   class="w-full py-2.5 rounded-xl border border-zinc-700 hover:border-zinc-600 text-zinc-400 hover:text-zinc-200 text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                    <i class="ph ph-arrow-left"></i> Quay lại F&B
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const bookingId = @Model.BookingId;
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    document.getElementById('applyVoucherBtn')?.addEventListener('click', async () => {
+        const code = document.getElementById('voucherCode').value.trim();
+        if (!code) return;
+        const btn = document.getElementById('applyVoucherBtn');
+        btn.textContent = 'Đang kiểm tra...';
+        btn.disabled = true;
+
+        const res  = await fetch('/Booking/ApplyVoucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `bookingId=${bookingId}&code=${encodeURIComponent(code)}&__RequestVerificationToken=${encodeURIComponent(token)}`
+        });
+        const data = await res.json();
+        const msg  = document.getElementById('voucherMsg');
+        msg.textContent = data.message;
+        if (data.success) {
+            msg.className = 'mt-2 text-xs text-emerald-400';
+            document.getElementById('discountDisplay').textContent = '–' + data.discountAmount.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('finalDisplay').textContent = data.finalAmount.toLocaleString('vi-VN') + ' đ';
+            btn.textContent = '✓ Đã áp dụng';
+            btn.className = btn.className.replace('bg-zinc-700 hover:bg-zinc-600', 'bg-emerald-600 cursor-default');
+            document.getElementById('voucherCode').readOnly = true;
+        } else {
+            msg.className = 'mt-2 text-xs text-red-400';
+            btn.textContent = 'Áp dụng';
+            btn.disabled = false;
+        }
+    });
+</script>
+}

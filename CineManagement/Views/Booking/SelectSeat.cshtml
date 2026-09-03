@@ -1,0 +1,441 @@
+@model SelectSeatViewModel
+@{
+    ViewData["Title"] = "Chọn ghế – " + Model.Showtime.Movie?.Title;
+    Layout = "_Layout";
+    var holdUntil = ViewBag.HoldUntil as DateTime?;
+    long holdUntilMs = holdUntil.HasValue
+        ? (long)(holdUntil.Value.ToUniversalTime() - DateTime.UnixEpoch).TotalMilliseconds : 0;
+
+    string RoomTypeBadge(RoomType t) => t switch {
+        RoomType.VIP  => "bg-amber-500/15 border-amber-500/40 text-amber-400",
+        RoomType.IMAX => "bg-purple-500/15 border-purple-500/40 text-purple-400",
+        _             => "bg-zinc-700/50 border-zinc-700 text-zinc-400"
+    };
+    string RoomTypeLabel(RoomType t) => t switch {
+        RoomType.VIP  => "VIP",
+        RoomType.IMAX => "IMAX",
+        _             => "Standard"
+    };
+}
+
+<div data-holduntil="@holdUntilMs" id="holduntilData" style="display:none"></div>
+
+@section Styles {
+<style>
+/* ── Seat shapes ─────────────────────────────────── */
+.seat {
+    width: 34px; height: 30px;
+    border-radius: 6px 6px 2px 2px;
+    border: 1.5px solid;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .6rem; font-weight: 800;
+    cursor: pointer; transition: all .12s; user-select: none;
+    position: relative;
+}
+.seat::after {
+    content: ''; position: absolute;
+    bottom: -4px; left: 2px; right: 2px; height: 4px;
+    border-radius: 0 0 3px 3px;
+    background: inherit; filter: brightness(0.7);
+}
+.seat-couple { width: 72px; }
+
+/* ── Available states ──────────────────────────── */
+.seat-available.seat-standard  { background:#27272a; border-color:#3f3f46; color:#a1a1aa; }
+.seat-available.seat-vip       { background:#2d1f00; border-color:#d97706; color:#fbbf24; }
+.seat-available.seat-couple    { background:#1a1a2e; border-color:#7c3aed; color:#a78bfa; }
+.seat-available:hover          { transform: translateY(-3px) scale(1.05); filter: brightness(1.3); }
+
+/* ── Selected ──────────────────────────────────── */
+.seat-selected.seat-standard   { background:#10b981; border-color:#059669; color:#fff; box-shadow: 0 0 10px rgba(16,185,129,.5); }
+.seat-selected.seat-vip        { background:#f59e0b; border-color:#d97706; color:#1c1917; box-shadow: 0 0 10px rgba(245,158,11,.5); }
+.seat-selected.seat-couple     { background:#8b5cf6; border-color:#7c3aed; color:#fff;   box-shadow: 0 0 10px rgba(139,92,246,.5); }
+.seat-selected { transform: translateY(-3px); }
+
+/* ── Occupied states ───────────────────────────── */
+.seat-held-me     { background:#065f46; border-color:#059669; color:#6ee7b7; cursor: default; }
+.seat-held-other  { background:#1c1917; border-color:#57534e; color:#57534e; cursor: not-allowed; }
+.seat-booked      { background:#18181b; border-color:#3f3f46; color:#3f3f46; cursor: not-allowed; }
+
+/* ── Screen bar ────────────────────────────────── */
+.screen-bar {
+    height: 8px;
+    background: linear-gradient(to bottom, #d4d4d8, #71717a);
+    border-radius: 50% 50% 0 0;
+    width: 70%; margin: 0 auto 4px;
+    box-shadow: 0 4px 20px rgba(212,212,216,.15);
+}
+
+/* ── Ticket card ───────────────────────────────── */
+.ticket-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 20px;
+    overflow: hidden;
+    position: sticky;
+    top: 90px;
+}
+.ticket-hole {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #09090b;
+    border: 1px solid #1e293b;
+    flex-shrink: 0;
+}
+.ticket-divider {
+    flex: 1; border-top: 2px dashed #1e293b; margin: 0 4px;
+}
+.seat-badge {
+    padding: 3px 10px; border-radius: 999px;
+    font-size: .7rem; font-weight: 800;
+    background: rgba(16,185,129,.15);
+    border: 1px solid rgba(16,185,129,.4);
+    color: #34d399;
+    animation: popIn .15s ease;
+}
+@@keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,.4); }
+    50%       { box-shadow: 0 0 0 8px rgba(16,185,129,.0); }
+}
+.btn-hold { animation: pulse-glow 2s infinite; }
+</style>
+}
+
+<!-- Step bar -->
+<div class="flex items-center gap-2 mb-8 text-sm">
+    <span class="flex items-center gap-1.5 text-emerald-400 font-medium">
+        <span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">1</span>
+        Chọn ghế
+    </span>
+    <div class="flex-1 h-px bg-zinc-800"></div>
+    <span class="flex items-center gap-1.5 text-zinc-500">
+        <span class="w-6 h-6 rounded-full bg-zinc-800 text-zinc-500 flex items-center justify-center text-xs font-bold">2</span>
+        Đồ ăn & nước
+    </span>
+    <div class="flex-1 h-px bg-zinc-800"></div>
+    <span class="flex items-center gap-1.5 text-zinc-500">
+        <span class="w-6 h-6 rounded-full bg-zinc-800 text-zinc-500 flex items-center justify-center text-xs font-bold">3</span>
+        Thanh toán
+    </span>
+</div>
+
+<div class="flex gap-6 items-start">
+
+    <!-- ═══ LEFT: Seat Map ═══════════════════════════════════════════ -->
+    <div class="flex-1 min-w-0">
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+                <div>
+                    <div class="font-bold text-zinc-100 flex items-center gap-2">
+                        <i class="ph ph-grid-nine text-emerald-400"></i>
+                        Sơ đồ ghế — @Model.Room.RoomName
+                        <span class="text-xs px-2 py-0.5 rounded-full border @RoomTypeBadge(Model.Room.RoomType)">@RoomTypeLabel(Model.Room.RoomType)</span>
+                    </div>
+                    <div class="text-zinc-500 text-xs mt-0.5">@Model.Showtime.Movie?.Title · @Model.Showtime.StartTime.ToString("HH:mm – dd/MM/yyyy")</div>
+                </div>
+                @if (holdUntil.HasValue)
+                {
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                        <i class="ph ph-hourglass text-amber-400 text-sm"></i>
+                        <span id="countdown" class="text-amber-400 font-bold text-sm tabular-nums">--:--</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Screen -->
+            <div class="pt-6 pb-2 text-center">
+                <div class="screen-bar"></div>
+                <span class="text-zinc-600 text-xs tracking-[.3em] font-semibold">MÀN HÌNH</span>
+            </div>
+
+            <!-- Seat grid -->
+            <div class="px-4 pb-4 overflow-x-auto">
+                <div class="inline-block min-w-full">
+                    @foreach (var row in Model.SeatMap)
+                    {
+                        <div style="display:flex;align-items:center;gap:5px;justify-content:center;margin-bottom:5px;">
+                            <!-- Row label left -->
+                            <div style="width:22px;text-align:center;font-size:.7rem;font-weight:800;color:#52525b;flex-shrink:0">@row.Key</div>
+
+                            @foreach (var seat in row.Value)
+                            {
+                                string typeCss = seat.SeatType switch {
+                                    SeatType.VIP    => "seat-vip",
+                                    SeatType.Couple => "seat-couple",
+                                    _               => "seat-standard"
+                                };
+                                string statusCss = seat.Status switch {
+                                    SelectSeatViewModel.SeatStatus.HeldByMe    => "seat-held-me",
+                                    SelectSeatViewModel.SeatStatus.HeldByOther => "seat-held-other",
+                                    SelectSeatViewModel.SeatStatus.Booked      => "seat-booked",
+                                    _                                           => "seat-available"
+                                };
+                                bool clickable = seat.Status == SelectSeatViewModel.SeatStatus.Available;
+                                string title = seat.SeatType switch {
+                                    SeatType.VIP    => $"{seat.SeatCode} · VIP",
+                                    SeatType.Couple => $"{seat.SeatCode} · Ghế đôi",
+                                    _               => $"{seat.SeatCode} · Thường"
+                                };
+
+                                <div class="seat @typeCss @statusCss"
+                                     data-seat-id="@seat.SeatId"
+                                     data-seat-code="@seat.SeatCode"
+                                     data-seat-type="@seat.SeatType"
+                                     data-clickable="@clickable.ToString().ToLower()"
+                                     title="@title">
+                                    @seat.SeatCode.Substring(1)
+                                </div>
+                            }
+
+                            <!-- Row label right -->
+                            <div style="width:22px;text-align:center;font-size:.7rem;font-weight:800;color:#52525b;flex-shrink:0">@row.Key</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="border-t border-zinc-800 px-6 py-4 flex flex-wrap gap-4 justify-center">
+                <div class="flex items-center gap-2">
+                    <div class="seat seat-available seat-standard" style="pointer-events:none;font-size:.55rem">A1</div>
+                    <span class="text-zinc-500 text-xs">Trống</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="seat seat-selected seat-standard" style="pointer-events:none;font-size:.55rem">B2</div>
+                    <span class="text-zinc-500 text-xs">Đang chọn</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="seat seat-available seat-vip" style="pointer-events:none;font-size:.55rem">C3</div>
+                    <span class="text-zinc-500 text-xs">VIP</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="seat seat-available seat-couple" style="pointer-events:none;font-size:.55rem;width:40px">D4</div>
+                    <span class="text-zinc-500 text-xs">Đôi</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="seat seat-held-other seat-standard" style="pointer-events:none;font-size:.55rem">E5</div>
+                    <span class="text-zinc-500 text-xs">Đã giữ</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="seat seat-booked seat-standard" style="pointer-events:none;font-size:.55rem">F6</div>
+                    <span class="text-zinc-500 text-xs">Đã đặt</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ RIGHT: Ticket detail card ═══════════════════════════════ -->
+    <div class="w-80 flex-shrink-0">
+        <div class="ticket-card">
+
+            <!-- Movie poster + title -->
+            <div class="relative">
+                @if (!string.IsNullOrEmpty(Model.Showtime.Movie?.PosterUrl))
+                {
+                    <img src="@Model.Showtime.Movie.PosterUrl" alt="Poster"
+                         class="w-full object-cover opacity-60" style="height:160px;object-fit:cover" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/60 to-transparent"></div>
+                }
+                else
+                {
+                    <div class="w-full flex items-center justify-center bg-zinc-900" style="height:100px">
+                        <i class="ph ph-film-strip text-5xl text-zinc-700"></i>
+                    </div>
+                }
+                <div class="absolute bottom-0 left-0 right-0 px-5 pb-4">
+                    <div class="text-white font-black text-lg leading-tight">@Model.Showtime.Movie?.Title</div>
+                    @if (Model.Showtime.Movie?.Genre != null)
+                    {
+                        <div class="text-zinc-400 text-xs mt-0.5">@Model.Showtime.Movie.Genre.Name</div>
+                    }
+                </div>
+            </div>
+
+            <!-- Ticket perforation line -->
+            <div class="flex items-center px-4 py-1">
+                <div class="ticket-hole"></div>
+                <div class="ticket-divider"></div>
+                <div class="ticket-hole"></div>
+            </div>
+
+            <!-- Showtime details -->
+            <div class="px-5 py-4 space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-zinc-900 rounded-xl p-3">
+                        <div class="text-zinc-500 text-xs mb-1 flex items-center gap-1">
+                            <i class="ph ph-clock"></i> Suất chiếu
+                        </div>
+                        <div class="text-zinc-100 font-bold text-base">@Model.Showtime.StartTime.ToString("HH:mm")</div>
+                        <div class="text-zinc-400 text-xs">@Model.Showtime.StartTime.ToString("dd/MM/yyyy")</div>
+                    </div>
+                    <div class="bg-zinc-900 rounded-xl p-3">
+                        <div class="text-zinc-500 text-xs mb-1 flex items-center gap-1">
+                            <i class="ph ph-building"></i> Phòng
+                        </div>
+                        <div class="text-zinc-100 font-bold text-sm leading-tight">@Model.Room.RoomName</div>
+                        <span class="inline-block text-xs mt-1 px-2 py-0.5 rounded-full border @RoomTypeBadge(Model.Room.RoomType)">@RoomTypeLabel(Model.Room.RoomType)</span>
+                    </div>
+                </div>
+
+                <!-- Price per seat -->
+                <div class="bg-zinc-900 rounded-xl p-3 flex items-center justify-between">
+                    <div class="text-zinc-500 text-xs flex items-center gap-1">
+                        <i class="ph ph-tag"></i> Đơn giá / ghế
+                    </div>
+                    <div class="text-emerald-400 font-black text-lg">@Model.Showtime.TicketPrice.ToString("N0") <span class="text-sm font-medium">đ</span></div>
+                </div>
+
+                @if (Model.Showtime.Movie?.Duration > 0)
+                {
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-zinc-500 flex items-center gap-1.5"><i class="ph ph-timer"></i> Thời lượng</span>
+                        <span class="text-zinc-300 font-medium">@Model.Showtime.Movie.Duration phút</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Showtime.Movie?.AgeRating))
+                {
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-zinc-500 flex items-center gap-1.5"><i class="ph ph-warning"></i> Độ tuổi</span>
+                        <span class="px-2 py-0.5 rounded bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-bold">@Model.Showtime.Movie.AgeRating</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Ticket perforation line -->
+            <div class="flex items-center px-4 py-1">
+                <div class="ticket-hole"></div>
+                <div class="ticket-divider"></div>
+                <div class="ticket-hole"></div>
+            </div>
+
+            <!-- Live selection summary -->
+            <div class="px-5 pt-3 pb-2">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-zinc-400 text-xs uppercase tracking-widest font-semibold">Ghế đã chọn</span>
+                    <span id="seatCount" class="text-xs text-zinc-500">0 ghế</span>
+                </div>
+                <!-- Seat badges container -->
+                <div id="selectedBadges" class="flex flex-wrap gap-1.5 min-h-[28px] mb-3">
+                    <span id="emptyBadge" class="text-zinc-600 text-xs italic">Chưa chọn ghế nào...</span>
+                </div>
+
+                <!-- Price breakdown -->
+                <div id="priceBreakdown" class="space-y-1.5 text-sm border-t border-zinc-800 pt-3 mb-3">
+                    <div class="flex justify-between text-zinc-400">
+                        <span>Số ghế</span>
+                        <span id="qtyDisplay">0</span>
+                    </div>
+                    <div class="flex justify-between text-zinc-400">
+                        <span>Đơn giá</span>
+                        <span>@Model.Showtime.TicketPrice.ToString("N0") đ</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-zinc-100 text-base pt-1 border-t border-zinc-800">
+                        <span>Tổng tiền ghế</span>
+                        <span class="text-emerald-400" id="totalPrice">0 đ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action form -->
+            <div class="px-5 pb-5">
+                <form asp-action="HoldSeats" method="post">
+                    <input type="hidden" name="showtimeId" value="@Model.Showtime.ShowtimeId" />
+                    <div id="hiddenSeatInputs"></div>
+                    <button type="submit" id="holdBtn" disabled
+                            class="btn-hold w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-600
+                                   text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+                        <i class="ph ph-lock-key-open"></i>
+                        <span id="holdBtnText">Chọn ghế để tiếp tục</span>
+                    </button>
+                </form>
+                <a asp-action="MovieDetail" asp-controller="Home" asp-route-id="@Model.Showtime.MovieId"
+                   class="mt-2 w-full py-2.5 rounded-xl border border-zinc-800 hover:border-zinc-700 text-zinc-500 hover:text-zinc-300
+                          text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                    <i class="ph ph-arrow-left"></i> Quay lại phim
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const ticketPrice = @Model.Showtime.TicketPrice;
+    const selected = new Set(); // set of seat IDs
+
+    // seat click
+    document.querySelectorAll('.seat[data-clickable="true"]').forEach(el => {
+        el.addEventListener('click', () => {
+            const id   = el.dataset.seatId;
+            const type = el.dataset.seatType; // "Standard" / "VIP" / "Couple"
+            if (selected.has(id)) {
+                selected.delete(id);
+                el.classList.remove('seat-selected');
+            } else {
+                selected.add(id);
+                el.classList.add('seat-selected');
+            }
+            updateSummary();
+        });
+    });
+
+    function updateSummary() {
+        const selectedEls = [...document.querySelectorAll('.seat-selected')];
+        const count = selectedEls.length;
+
+        // badges
+        const badgeContainer = document.getElementById('selectedBadges');
+        const empty = document.getElementById('emptyBadge');
+        badgeContainer.innerHTML = '';
+        if (count === 0) {
+            badgeContainer.appendChild(empty);
+        } else {
+            selectedEls.forEach(el => {
+                const span = document.createElement('span');
+                span.className = 'seat-badge';
+                span.textContent = el.dataset.seatCode;
+                badgeContainer.appendChild(span);
+            });
+        }
+
+        // counts + price
+        document.getElementById('seatCount').textContent = count + ' ghế';
+        document.getElementById('qtyDisplay').textContent = count;
+        document.getElementById('totalPrice').textContent = (count * ticketPrice).toLocaleString('vi-VN') + ' đ';
+
+        // button
+        const btn = document.getElementById('holdBtn');
+        const btnText = document.getElementById('holdBtnText');
+        btn.disabled = count === 0;
+        btnText.textContent = count > 0
+            ? `Giữ ${count} ghế & Tiếp theo →`
+            : 'Chọn ghế để tiếp tục';
+
+        // hidden inputs
+        const container = document.getElementById('hiddenSeatInputs');
+        container.innerHTML = '';
+        selected.forEach(id => {
+            const inp = document.createElement('input');
+            inp.type = 'hidden'; inp.name = 'selectedSeatIds'; inp.value = id;
+            container.appendChild(inp);
+        });
+    }
+
+    // Countdown timer
+    (function() {
+        const el = document.getElementById('countdown');
+        if (!el) return;
+        const ms = parseInt(document.getElementById('holduntilData')?.dataset.holduntil || '0');
+        if (!ms) return;
+        function tick() {
+            const rem = Math.floor((ms - Date.now()) / 1000);
+            if (rem < 1) { el.textContent = 'Hết giờ!'; return; }
+            el.textContent = String(Math.floor(rem/60)).padStart(2,'0') + ':' + String(rem%60).padStart(2,'0');
+        }
+        tick();
+        setInterval(tick, 1000);
+    })();
+</script>
+}

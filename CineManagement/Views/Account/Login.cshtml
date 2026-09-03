@@ -4,46 +4,95 @@
     Layout = "_Layout";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-5 col-lg-4">
-        <div class="card shadow-sm mt-4">
-            <div class="card-body p-4">
-                <div class="text-center mb-4">
-                    <i class="bi bi-camera-reels fs-1 text-warning"></i>
-                    <h3 class="mt-2 fw-bold">Đăng nhập</h3>
+<div class="flex items-center justify-center py-6 md:py-12">
+    <div class="w-full max-w-md">
+        <!-- Login Card -->
+        <div class="rounded-2xl border border-zinc-800/80 bg-zinc-900/70 p-8 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+            <!-- Background Glow Effect -->
+            <div class="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+
+            <!-- Card Header -->
+            <div class="text-center mb-8 relative z-10">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 shadow-inner">
+                    <i class="ph-bold ph-user-circle text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight text-zinc-100">Chào mừng trở lại</h2>
+                <p class="mt-1.5 text-sm text-zinc-400">Đăng nhập tài khoản CineManagement của bạn</p>
+            </div>
+
+            <!-- Form -->
+            <form asp-action="Login" method="post" class="space-y-5 relative z-10">
+                <input type="hidden" asp-for="ReturnUrl" />
+                
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                {
+                    <div asp-validation-summary="ModelOnly" class="rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-400 flex items-start gap-2.5">
+                        <i class="ph-bold ph-warning-circle text-lg shrink-0 mt-0.5"></i>
+                        <div>@Html.ValidationSummary(true)</div>
+                    </div>
+                }
+
+                <!-- Email Input -->
+                <div class="space-y-1.5">
+                    <label asp-for="Email" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">Địa chỉ Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                            <i class="ph ph-envelope-simple text-lg"></i>
+                        </div>
+                        <input asp-for="Email" 
+                               class="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all" 
+                               placeholder="name@example.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-xs text-red-400"></span>
                 </div>
 
-                <form asp-action="Login" method="post">
-                    <input type="hidden" asp-for="ReturnUrl" />
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label fw-semibold"></label>
-                        <input asp-for="Email" class="form-control" placeholder="email@example.com" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
+                <!-- Password Input -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label asp-for="Password" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">Mật khẩu</label>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label fw-semibold"></label>
-                        <input asp-for="Password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                            <i class="ph ph-lock-key text-lg"></i>
+                        </div>
+                        <input asp-for="Password" type="password"
+                               class="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all" 
+                               placeholder="••••••••" />
                     </div>
+                    <span asp-validation-for="Password" class="text-xs text-red-400"></span>
+                </div>
 
-                    <div class="mb-4 form-check">
-                        <input asp-for="RememberMe" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label"></label>
-                    </div>
+                <!-- Remember Me Checkbox -->
+                <div class="flex items-center justify-between pt-1">
+                    <label class="flex items-center gap-2.5 cursor-pointer text-sm text-zinc-300 select-none">
+                        <input asp-for="RememberMe" 
+                               class="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950 accent-emerald-500 transition-all cursor-pointer" />
+                        <span>Ghi nhớ đăng nhập</span>
+                    </label>
+                </div>
 
-                    <button type="submit" class="btn btn-warning w-100 fw-bold py-2">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
-                    </button>
-                </form>
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 hover:scale-[0.99] active:scale-[0.97] transition-all">
+                    <i class="ph-bold ph-sign-in text-lg"></i>
+                    Đăng nhập
+                </button>
+            </form>
 
-                <hr />
-                <div class="d-flex justify-content-between">
-                    <a asp-action="Register" class="text-muted small">Đăng ký tài khoản mới</a>
-                    <a asp-action="AdminLogin" class="text-muted small">
-                        <i class="bi bi-shield-lock me-1"></i>Admin Panel
+            <!-- Card Footer Links -->
+            <div class="mt-8 border-t border-zinc-800/80 pt-6 text-center text-sm text-zinc-400 flex flex-col gap-3 relative z-10">
+                <p>
+                    Chưa có tài khoản?
+                    <a asp-action="Register" class="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors ml-1 hover:underline">
+                        Tạo tài khoản mới
+                    </a>
+                </p>
+                <div class="flex items-center justify-center gap-2 text-xs text-zinc-500">
+                    <i class="ph ph-shield-check text-base text-zinc-400"></i>
+                    <span>Bạn là nhân viên?</span>
+                    <a asp-action="AdminLogin" class="text-zinc-300 hover:text-white transition-colors underline font-medium">
+                        Đăng nhập Admin Panel
                     </a>
                 </div>
             </div>

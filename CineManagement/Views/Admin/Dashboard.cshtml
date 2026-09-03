@@ -1,51 +1,61 @@
 @model IEnumerable<Movie>
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Bảng điều khiển";
     Layout = "_AdminLayout";
 }
 
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="card stat-card bg-primary text-white shadow-sm">
-            <div class="card-body d-flex align-items-center">
-                <i class="bi bi-film fs-1 me-3 opacity-75"></i>
-                <div>
-                    <div class="fs-2 fw-bold">@ViewBag.TotalMovies</div>
-                    <div class="small opacity-75">Tổng số phim</div>
-                </div>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card stat-card bg-primary text-white shadow-sm h-100">
+            <div class="card-body p-3 text-center">
+                <i class="bi bi-film fs-2 opacity-75"></i>
+                <div class="fs-3 fw-bold mt-1">@ViewBag.TotalMovies</div>
+                <div class="small opacity-75">Tổng phim</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card bg-success text-white shadow-sm">
-            <div class="card-body d-flex align-items-center">
-                <i class="bi bi-play-circle fs-1 me-3 opacity-75"></i>
-                <div>
-                    <div class="fs-2 fw-bold">@ViewBag.NowShowing</div>
-                    <div class="small opacity-75">Đang chiếu</div>
-                </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card stat-card bg-success text-white shadow-sm h-100">
+            <div class="card-body p-3 text-center">
+                <i class="bi bi-play-circle fs-2 opacity-75"></i>
+                <div class="fs-3 fw-bold mt-1">@ViewBag.NowShowing</div>
+                <div class="small opacity-75">Đang chiếu</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card bg-warning text-dark shadow-sm">
-            <div class="card-body d-flex align-items-center">
-                <i class="bi bi-clock fs-1 me-3 opacity-75"></i>
-                <div>
-                    <div class="fs-2 fw-bold">@ViewBag.ComingSoon</div>
-                    <div class="small opacity-75">Sắp chiếu</div>
-                </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card stat-card bg-dark text-white shadow-sm h-100">
+            <div class="card-body p-3 text-center">
+                <i class="bi bi-building fs-2 text-warning opacity-75"></i>
+                <div class="fs-3 fw-bold mt-1">@ViewBag.TotalRooms</div>
+                <div class="small opacity-75">Phòng chiếu</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card bg-info text-white shadow-sm">
-            <div class="card-body d-flex align-items-center">
-                <i class="bi bi-people fs-1 me-3 opacity-75"></i>
-                <div>
-                    <div class="fs-2 fw-bold">@ViewBag.TotalStaff</div>
-                    <div class="small opacity-75">Nhân viên</div>
-                </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card stat-card bg-warning text-dark shadow-sm h-100">
+            <div class="card-body p-3 text-center">
+                <i class="bi bi-calendar-event fs-2 opacity-75"></i>
+                <div class="fs-3 fw-bold mt-1">@ViewBag.TotalShowtimes</div>
+                <div class="small opacity-75">Suất chiếu tới</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card stat-card text-white shadow-sm h-100" style="background:#6f42c1;">
+            <div class="card-body p-3 text-center">
+                <i class="bi bi-ticket-perforated fs-2 opacity-75"></i>
+                <div class="fs-3 fw-bold mt-1">@ViewBag.TodayBookings</div>
+                <div class="small opacity-75">Đặt vé hôm nay</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card stat-card bg-danger text-white shadow-sm h-100">
+            <div class="card-body p-3 text-center">
+                <i class="bi bi-cash-stack fs-2 opacity-75"></i>
+                <div class="fs-3 fw-bold mt-1" style="font-size:1.2rem!important">@(((decimal)ViewBag.TodayRevenue).ToString("N0"))đ</div>
+                <div class="small opacity-75">Doanh thu hôm nay</div>
             </div>
         </div>
     </div>
@@ -54,9 +64,14 @@
 <div class="table-container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="fw-bold mb-0"><i class="bi bi-film me-2"></i>Phim mới thêm gần đây</h5>
-        <a asp-controller="Movie" asp-action="Create" class="btn btn-warning btn-sm">
-            <i class="bi bi-plus-lg me-1"></i>Thêm phim mới
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-controller="Showtime" asp-action="Create" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-calendar-plus me-1"></i>Lên lịch chiếu
+            </a>
+            <a asp-controller="Movie" asp-action="Create" class="btn btn-warning btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>Thêm phim
+            </a>
+        </div>
     </div>
 
     <div class="table-responsive">
@@ -115,7 +130,12 @@
         }
     </div>
 
-    <a asp-controller="Movie" asp-action="Index" class="btn btn-outline-primary btn-sm">
-        Xem tất cả phim <i class="bi bi-arrow-right ms-1"></i>
-    </a>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <a asp-controller="Movie" asp-action="Index" class="btn btn-outline-primary btn-sm">
+            Xem tất cả phim <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+        <a asp-controller="Admin" asp-action="Bookings" class="btn btn-outline-secondary btn-sm">
+            Xem đặt vé hôm nay <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
 </div>

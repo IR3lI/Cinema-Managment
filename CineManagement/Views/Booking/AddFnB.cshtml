@@ -1,0 +1,324 @@
+@model AddFnBViewModel
+@{
+    ViewData["Title"] = "Chọn Đồ ăn & Nước uống";
+    Layout = "_Layout";
+    var grouped = Model.Items.GroupBy(i => i.Category).OrderBy(g => g.Key).ToList();
+
+    static string CatLabel(FoodCategory c) => c switch {
+        FoodCategory.Combo   => "Combo",
+        FoodCategory.Popcorn => "Bắp rang",
+        FoodCategory.Drink   => "Đồ uống",
+        FoodCategory.Snack   => "Snack",
+        _                    => "Khác"
+    };
+    static string CatEmoji(FoodCategory c) => c switch {
+        FoodCategory.Combo   => "🎁",
+        FoodCategory.Popcorn => "🍿",
+        FoodCategory.Drink   => "🥤",
+        FoodCategory.Snack   => "🍟",
+        _                    => "🛒"
+    };
+    static string CatGradient(FoodCategory c) => c switch {
+        FoodCategory.Combo   => "from-amber-500/20 to-orange-500/10",
+        FoodCategory.Popcorn => "from-yellow-500/20 to-amber-500/10",
+        FoodCategory.Drink   => "from-sky-500/20 to-blue-500/10",
+        FoodCategory.Snack   => "from-red-500/20 to-rose-500/10",
+        _                    => "from-zinc-500/20 to-zinc-500/10"
+    };
+    static string CatAccent(FoodCategory c) => c switch {
+        FoodCategory.Combo   => "text-amber-400",
+        FoodCategory.Popcorn => "text-yellow-400",
+        FoodCategory.Drink   => "text-sky-400",
+        FoodCategory.Snack   => "text-red-400",
+        _                    => "text-zinc-400"
+    };
+    static string CatBorder(FoodCategory c) => c switch {
+        FoodCategory.Combo   => "border-amber-500/40",
+        FoodCategory.Popcorn => "border-yellow-500/40",
+        FoodCategory.Drink   => "border-sky-500/40",
+        FoodCategory.Snack   => "border-red-500/40",
+        _                    => "border-zinc-500/40"
+    };
+}
+
+@section Styles {
+<style>
+    .fnb-card { transition: all .2s ease; border: 1.5px solid #27272a; }
+    .fnb-card:hover { border-color: #3f3f46; transform: translateY(-2px); }
+    .fnb-card.has-item { border-color: #10b981 !important; box-shadow: 0 0 0 1px #10b98140; }
+    .qty-circle {
+        width: 32px; height: 32px; border-radius: 50%; display: flex;
+        align-items: center; justify-content: center; font-weight: 700;
+        font-size: .9rem; cursor: pointer; border: none; transition: all .15s;
+    }
+    .qty-minus { background: #27272a; color: #a1a1aa; }
+    .qty-minus:hover { background: #3f3f46; color: #fff; }
+    .qty-plus  { background: #10b981; color: #fff; }
+    .qty-plus:hover  { background: #059669; }
+    .qty-val   {
+        width: 36px; text-align: center; background: transparent; border: none;
+        color: #fff; font-weight: 700; font-size: .95rem;
+    }
+    .qty-val:focus { outline: none; }
+    .cart-line { animation: slideIn .2s ease; }
+    @@keyframes slideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .cat-tab { transition: all .15s; }
+    .cat-tab.active { background: #10b981; color: #fff !important; }
+    .cat-tab:not(.active):hover { background: #27272a; }
+</style>
+}
+
+<!-- Step progress bar -->
+<div class="flex items-center gap-2 mb-8 text-sm">
+    <span class="flex items-center gap-1.5 text-zinc-500"><span class="w-6 h-6 rounded-full bg-zinc-700 text-zinc-400 flex items-center justify-center text-xs font-bold">1</span>Chọn ghế</span>
+    <div class="flex-1 h-px bg-zinc-800"></div>
+    <span class="flex items-center gap-1.5 text-emerald-400 font-medium"><span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">2</span>Đồ ăn & nước</span>
+    <div class="flex-1 h-px bg-zinc-800"></div>
+    <span class="flex items-center gap-1.5 text-zinc-500"><span class="w-6 h-6 rounded-full bg-zinc-800 text-zinc-500 flex items-center justify-center text-xs font-bold">3</span>Thanh toán</span>
+</div>
+
+<form id="fnbForm" asp-action="AddFnB" asp-route-bookingId="@Model.BookingId" method="post">
+<div class="flex gap-6 items-start">
+
+    <!-- Left: F&B Items -->
+    <div class="flex-1 min-w-0">
+        <div class="mb-5">
+            <h4 class="text-xl font-semibold text-zinc-100 mb-1">🍿 Thêm Đồ ăn & Nước uống</h4>
+            <p class="text-zinc-500 text-sm">Tuỳ chọn – Thêm đồ ăn vào đơn để tiết kiệm thời gian tại quầy</p>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="flex gap-2 mb-6 flex-wrap">
+            <button type="button" class="cat-tab active px-4 py-1.5 rounded-full text-sm font-medium text-zinc-300 border border-zinc-700" data-cat="all">
+                Tất cả
+            </button>
+            @foreach (var g in grouped)
+            {
+                <button type="button" class="cat-tab px-4 py-1.5 rounded-full text-sm font-medium text-zinc-400 border border-zinc-800" data-cat="@((int)g.Key)">
+                    @CatEmoji(g.Key) @CatLabel(g.Key)
+                </button>
+            }
+        </div>
+
+        <!-- Items by category -->
+        @foreach (var group in grouped)
+        {
+            <div class="cat-section mb-8" data-cat-id="@((int)group.Key)">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-2xl">@CatEmoji(group.Key)</span>
+                    <h6 class="font-semibold @CatAccent(group.Key) text-sm uppercase tracking-widest">@CatLabel(group.Key)</h6>
+                    <div class="flex-1 h-px bg-zinc-800"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    @foreach (var item in group)
+                    {
+                        <div class="fnb-card rounded-2xl bg-gradient-to-br @CatGradient(group.Key) bg-zinc-900 p-4 cursor-default"
+                             id="card_@item.FoodItemId">
+                            <div class="flex items-center gap-3">
+                                <!-- Icon / Image -->
+                                <div class="w-16 h-16 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center
+                                            border @CatBorder(group.Key)"
+                                     style="background:rgba(0,0,0,.3)">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover" />
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size:2rem">@CatEmoji(group.Key)</span>
+                                    }
+                                </div>
+
+                                <!-- Info -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-semibold text-zinc-100 text-sm leading-tight mb-0.5 truncate">@item.Name</div>
+                                    @if (!string.IsNullOrEmpty(item.Description))
+                                    {
+                                        <div class="text-xs text-zinc-500 mb-1 line-clamp-1">@item.Description</div>
+                                    }
+                                    <div class="font-bold text-emerald-400">@item.Price.ToString("N0") đ</div>
+                                </div>
+
+                                <!-- Quantity control -->
+                                <div class="flex items-center gap-1 flex-shrink-0">
+                                    <button type="button" class="qty-circle qty-minus"
+                                            onclick="changeQty(@item.FoodItemId, -1)">−</button>
+                                    <input type="number"
+                                           name="quantities[@item.FoodItemId]"
+                                           id="qty_@item.FoodItemId"
+                                           value="@item.Quantity" min="0" max="10"
+                                           class="qty-val"
+                                           data-price="@item.Price"
+                                           data-name="@item.Name"
+                                           onchange="syncQty(@item.FoodItemId)" />
+                                    <button type="button" class="qty-circle qty-plus"
+                                            onclick="changeQty(@item.FoodItemId, 1)">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Item subtotal badge (shown when qty > 0) -->
+                            <div id="sub_@item.FoodItemId" class="mt-2 text-right text-xs text-emerald-400 font-medium"
+                                 style="display:@(item.Quantity > 0 ? "block" : "none")">
+                                @item.Quantity × @item.Price.ToString("N0") = @((item.Quantity * item.Price).ToString("N0")) đ
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Right: Sticky cart summary -->
+    <div class="w-80 flex-shrink-0 sticky top-24">
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur overflow-hidden">
+
+            <!-- Header -->
+            <div class="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
+                <span class="font-semibold text-zinc-100">Đơn hàng của bạn</span>
+                <span class="text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full" id="itemCount">0 món</span>
+            </div>
+
+            <!-- Seat row -->
+            <div class="px-5 py-3 border-b border-zinc-800/60">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-zinc-400 flex items-center gap-1.5">
+                        <i class="ph ph-seat text-zinc-500"></i> Ghế
+                    </span>
+                    <span class="text-zinc-200 font-medium">@Model.SeatTotal.ToString("N0") đ</span>
+                </div>
+            </div>
+
+            <!-- F&B cart lines -->
+            <div id="cartLines" class="px-5 py-3 min-h-[60px] space-y-2 border-b border-zinc-800/60">
+                <div id="emptyCart" class="text-center py-4 text-zinc-600 text-sm">
+                    <i class="ph ph-shopping-cart text-2xl block mb-1"></i>
+                    Chưa chọn đồ ăn
+                </div>
+            </div>
+
+            <!-- Totals -->
+            <div class="px-5 py-4 space-y-2">
+                <div class="flex justify-between text-sm text-zinc-400">
+                    <span>Đồ ăn & nước</span>
+                    <span id="fnbTotal" class="text-zinc-200">0 đ</span>
+                </div>
+                <div class="flex justify-between text-base font-bold text-zinc-100 pt-2 border-t border-zinc-800">
+                    <span>Tạm tính</span>
+                    <span class="text-emerald-400" id="grandTotal">@Model.SeatTotal.ToString("N0") đ</span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-5 pb-5 space-y-2">
+                <button type="submit" form="fnbForm"
+                        class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+                    <i class="ph ph-arrow-right"></i> Tiếp theo: Thanh toán
+                </button>
+                <a asp-action="SelectSeat" asp-route-showtimeId="@Model.ShowtimeId"
+                   class="w-full py-2.5 rounded-xl border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                    <i class="ph ph-arrow-left"></i> Quay lại chọn ghế
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+@section Scripts {
+<script>
+    const seatTotal = @Model.SeatTotal;
+
+    // item registry: { id -> { name, price } }
+    const registry = {
+        @foreach (var item in Model.Items)
+        {
+            <text>@item.FoodItemId: { name: "@Html.Raw(item.Name.Replace("\"", "\\\""))", price: @item.Price },</text>
+        }
+    };
+
+    function changeQty(id, delta) {
+        const inp = document.getElementById('qty_' + id);
+        let v = Math.max(0, Math.min(10, parseInt(inp.value || 0) + delta));
+        inp.value = v;
+        syncQty(id);
+    }
+
+    function syncQty(id) {
+        const inp  = document.getElementById('qty_' + id);
+        const qty  = parseInt(inp.value || 0);
+        const info = registry[id];
+        const card = document.getElementById('card_' + id);
+        const sub  = document.getElementById('sub_' + id);
+
+        // Card highlight
+        if (qty > 0) {
+            card.classList.add('has-item');
+            sub.style.display = 'block';
+            sub.textContent = qty + ' × ' + info.price.toLocaleString('vi-VN') + ' = ' + (qty * info.price).toLocaleString('vi-VN') + ' đ';
+        } else {
+            card.classList.remove('has-item');
+            sub.style.display = 'none';
+        }
+        renderCart();
+    }
+
+    function renderCart() {
+        let fnbTotal = 0;
+        let count    = 0;
+        const lines  = [];
+
+        Object.keys(registry).forEach(id => {
+            const inp = document.getElementById('qty_' + id);
+            const qty = parseInt(inp?.value || 0);
+            if (qty > 0) {
+                fnbTotal += registry[id].price * qty;
+                count += qty;
+                lines.push({ name: registry[id].name, qty, price: registry[id].price });
+            }
+        });
+
+        // Cart lines
+        const container = document.getElementById('cartLines');
+        const empty     = document.getElementById('emptyCart');
+        if (lines.length === 0) {
+            container.innerHTML = '';
+            container.appendChild(empty);
+            empty.style.display = 'block';
+        } else {
+            container.innerHTML = '';
+            lines.forEach(l => {
+                const div = document.createElement('div');
+                div.className = 'cart-line flex justify-between items-center text-sm';
+                div.innerHTML =
+                    '<span class="text-zinc-300 truncate flex-1 mr-2">' +
+                        '<span class="text-zinc-500 mr-1">×' + l.qty + '</span>' + l.name +
+                    '</span>' +
+                    '<span class="text-emerald-400 font-medium flex-shrink-0">' +
+                        (l.qty * l.price).toLocaleString('vi-VN') + ' đ' +
+                    '</span>';
+                container.appendChild(div);
+            });
+        }
+
+        document.getElementById('itemCount').textContent = count > 0 ? count + ' món' : '0 món';
+        document.getElementById('fnbTotal').textContent  = fnbTotal.toLocaleString('vi-VN') + ' đ';
+        document.getElementById('grandTotal').textContent = (seatTotal + fnbTotal).toLocaleString('vi-VN') + ' đ';
+    }
+
+    // Category tab filter
+    document.querySelectorAll('.cat-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const cat = tab.dataset.cat;
+            document.querySelectorAll('.cat-section').forEach(sec => {
+                sec.style.display = (cat === 'all' || sec.dataset.catId === cat) ? '' : 'none';
+            });
+        });
+    });
+
+    // Init (for pre-filled quantities)
+    Object.keys(registry).forEach(id => syncQty(id));
+</script>
+}

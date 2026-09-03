@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using CineManagement.Data;
 using CineManagement.Models;
 using CineManagement.ViewModels;
+using CineManagement.Services;
 
 namespace CineManagement.Controllers;
 
@@ -11,10 +12,12 @@ namespace CineManagement.Controllers;
 public class MovieController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IFileStorageService _fileStorageService;
 
-    public MovieController(ApplicationDbContext context)
+    public MovieController(ApplicationDbContext context, IFileStorageService fileStorageService)
     {
         _context = context;
+        _fileStorageService = fileStorageService;
     }
 
     // ── Index + Filter ────────────────────────────────────────────────────────
@@ -67,6 +70,14 @@ public class MovieController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(MovieFormViewModel model)
     {
+        if (model.PosterFile != null)
+        {
+            if (!_fileStorageService.IsValidImage(model.PosterFile, out var errorMessage))
+            {
+                ModelState.AddModelError("PosterFile", errorMessage ?? "Ảnh poster không hợp lệ.");
+            }
+        }
+
         if (!ModelState.IsValid)
             return View(await BuildFormViewModel(model));
 
@@ -92,7 +103,7 @@ public class MovieController : Controller
         // Handle poster upload
         if (model.PosterFile != null && model.PosterFile.Length > 0)
         {
-            movie.PosterUrl = await SavePosterAsync(model.PosterFile);
+            movie.PosterUrl = await _fileStorageService.SaveImageAsync(model.PosterFile, "posters");
         }
 
         _context.Movies.Add(movie);
@@ -137,6 +148,14 @@ public class MovieController : Controller
     {
         if (id != model.MovieId) return BadRequest();
 
+        if (model.PosterFile != null)
+        {
+            if (!_fileStorageService.IsValidImage(model.PosterFile, out var errorMessage))
+            {
+                ModelState.AddModelError("PosterFile", errorMessage ?? "Ảnh poster không hợp lệ.");
+            }
+        }
+
         if (!ModelState.IsValid)
             return View(await BuildFormViewModel(model));
 
@@ -161,9 +180,9 @@ public class MovieController : Controller
         {
             // Delete old poster
             if (!string.IsNullOrEmpty(movie.PosterUrl))
-                DeleteFile(movie.PosterUrl);
+                _fileStorageService.DeleteFile(movie.PosterUrl);
 
-            movie.PosterUrl = await SavePosterAsync(model.PosterFile);
+            movie.PosterUrl = await _fileStorageService.SaveImageAsync(model.PosterFile, "posters");
         }
 
         _context.Update(movie);
@@ -198,28 +217,5 @@ public class MovieController : Controller
         vm.Genres = genres.Select(g =>
             new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem(g.Name, g.GenreId.ToString()));
         return vm;
-    }
-
-    private async Task<string> SavePosterAsync(IFormFile file)
-    {
-        var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "posters");
-        Directory.CreateDirectory(uploadsDir);
-
-        var ext = Path.GetExtension(file.FileName);
-        var fileName = $"{Guid.NewGuid()}{ext}";
-        var filePath = Path.Combine(uploadsDir, fileName);
-
-        using var stream = new FileStream(filePath, FileMode.Create);
-        await file.CopyToAsync(stream);
-
-        return $"/uploads/posters/{fileName}";
-    }
-
-    private void DeleteFile(string relativeUrl)
-    {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",
-            relativeUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-        if (System.IO.File.Exists(filePath))
-            System.IO.File.Delete(filePath);
     }
 }

@@ -1,117 +1,132 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] – CineManagement</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    
+    <!-- Tailwind CSS v4 Browser Setup -->
+    <script src="https://unpkg.com/@@tailwindcss/browser@4"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@@phosphor-icons/web"></script>
+
+    <!-- Geist Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body { background: #f8f9fa; }
-        .navbar-brand { font-weight: 700; letter-spacing: 1px; }
-        .movie-card img { height: 300px; object-fit: cover; }
-        .badge-status-nowshowing { background:#198754; }
-        .badge-status-comingsoon { background:#ffc107; color:#000; }
-        .badge-status-ended { background:#6c757d; }
-        footer { background:#212529; color:#adb5bd; }
+        body { 
+            font-family: 'Geist', sans-serif; 
+            background-color: #09090b; /* zinc-950 */
+            color: #d4d4d8; /* zinc-300 */
+        }
+        
+        /* Custom scrollbar for premium feel */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                <i class="bi bi-camera-reels me-2"></i>CineManagement
+<body class="antialiased min-h-[100dvh] flex flex-col selection:bg-emerald-500/30 selection:text-emerald-200">
+    
+    <!-- Navigation -->
+    <header class="sticky top-0 z-50 w-full border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-md">
+        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
+            <!-- Brand -->
+            <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 group transition-opacity hover:opacity-80">
+                <i class="ph ph-film-strip text-2xl text-emerald-400"></i>
+                <span class="text-lg font-semibold tracking-tight text-zinc-100">CineManagement</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navMenu">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">
-                            <i class="bi bi-film me-1"></i>Phim
-                        </a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Admin" asp-action="Dashboard">
-                                    <i class="bi bi-speedometer2 me-1"></i>Admin Panel
-                                </a>
-                            </li>
-                        }
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>@User.Identity.Name
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">
-                                    <i class="bi bi-person me-2"></i>Hồ sơ cá nhân
-                                </a></li>
-                                <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
-                                    <i class="bi bi-key me-2"></i>Đổi mật khẩu
-                                </a></li>
-                                <li><hr class="dropdown-divider" /></li>
-                                <li>
-                                    <form asp-controller="Account" asp-action="Logout" method="post">
-                                        <button type="submit" class="dropdown-item text-danger">
-                                            <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Login">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-outline-warning btn-sm ms-2 px-3" asp-controller="Account" asp-action="Register">
-                                Đăng ký
-                            </a>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <main class="py-4">
-        <div class="container">
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            }
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            }
-            @RenderBody()
+            <!-- Desktop Menu -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-zinc-100 transition-colors">Phim đang chiếu</a>
+                
+                <div class="h-4 w-px bg-zinc-800"></div>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                    {
+                        <a asp-controller="Admin" asp-action="Dashboard" class="flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                            <i class="ph ph-gauge"></i> Admin Panel
+                        </a>
+                    }
+                    <div class="group relative inline-block">
+                        <button class="flex items-center gap-2 hover:text-zinc-100 transition-colors">
+                            <i class="ph ph-user-circle text-lg"></i>
+                            @User.Identity.Name
+                        </button>
+                        <!-- Simple dropdown on hover for MVP -->
+                        <div class="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-48">
+                            <div class="rounded-xl border border-zinc-800 bg-zinc-900/95 shadow-xl backdrop-blur-sm p-2 flex flex-col gap-1 text-sm">
+                                <a asp-controller="Account" asp-action="Profile" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"><i class="ph ph-user"></i> Hồ sơ cá nhân</a>
+                                <a asp-controller="Booking" asp-action="MyBookings" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"><i class="ph ph-ticket"></i> Lịch sử đặt vé</a>
+                                <a asp-controller="Account" asp-action="ChangePassword" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"><i class="ph ph-key"></i> Đổi mật khẩu</a>
+                                <div class="h-px bg-zinc-800 my-1"></div>
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="w-full">
+                                    <button type="submit" class="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors text-left">
+                                        <i class="ph ph-sign-out"></i> Đăng xuất
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="hover:text-zinc-100 transition-colors">Đăng nhập</a>
+                    <a asp-controller="Account" asp-action="Register" class="rounded-full bg-zinc-100 px-4 py-2 text-zinc-950 hover:bg-white hover:scale-[0.98] transition-all font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)]">Đăng ký</a>
+                }
+            </nav>
+
+            <!-- Mobile Menu Toggle (Placeholder logic, relies on simple CSS or JS if needed, keeping simple for now) -->
+            <button class="md:hidden p-2 text-zinc-400 hover:text-zinc-100">
+                <i class="ph ph-list text-2xl"></i>
+            </button>
         </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-6 lg:px-8 py-8 md:py-12">
+        <!-- Toast Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="mb-8 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                <i class="ph-fill ph-check-circle text-xl"></i>
+                <p class="text-sm font-medium">@TempData["Success"]</p>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="mb-8 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-red-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                <i class="ph-fill ph-warning-circle text-xl"></i>
+                <p class="text-sm font-medium">@TempData["Error"]</p>
+            </div>
+        }
+
+        @RenderBody()
     </main>
 
-    <footer class="py-4 mt-5">
-        <div class="container text-center">
-            <p class="mb-0">&copy; @DateTime.Now.Year CineManagement – Hệ thống quản lý rạp chiếu phim</p>
+    <!-- Footer -->
+    <footer class="border-t border-zinc-800/60 bg-zinc-950 mt-auto">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8 py-12 md:py-16">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
+                    <i class="ph ph-film-strip text-xl text-zinc-400"></i>
+                    <span class="font-medium text-zinc-400 tracking-tight">CineManagement</span>
+                </div>
+                <p class="text-sm text-zinc-500 text-center md:text-left">
+                    &copy; @DateTime.Now.Year. Hệ thống quản lý rạp chiếu phim thế hệ mới.
+                </p>
+            </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

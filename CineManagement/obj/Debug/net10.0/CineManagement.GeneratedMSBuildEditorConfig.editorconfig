@@ -58,8 +58,44 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Admin/Bookings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQm9va2luZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Admin/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Booking/AddFnB.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xBZGRGbkIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Booking/Checkout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xDaGVja291dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Booking/Confirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xDb25maXJtYXRpb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Booking/MyBookings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xNeUJvb2tpbmdzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Booking/SelectSeat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xTZWxlY3RTZWF0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Food/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRm9vZFxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Food/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRm9vZFxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Food/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRm9vZFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Genre/Create.cshtml]
@@ -102,6 +138,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW92aWVcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/ScreeningRoom/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NyZWVuaW5nUm9vbVxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/ScreeningRoom/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NyZWVuaW5nUm9vbVxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/ScreeningRoom/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NyZWVuaW5nUm9vbVxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/ScreeningRoom/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NyZWVuaW5nUm9vbVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -116,6 +168,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Showtime/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hvd3RpbWVcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Showtime/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hvd3RpbWVcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Showtime/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hvd3RpbWVcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/tranp/Documents/CineManagement/CineManagement/Views/Staff/Create.cshtml]

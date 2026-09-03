@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using CineManagement.Data;
 using CineManagement.Models;
+using CineManagement.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.LogoutPath = "/Account/Logout";
 });
+
+// ── Application Services ───────────────────────────────────────────────────
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddHostedService<SeatHoldCleanupService>();
 
 // ── MVC ──────────────────────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews();

@@ -1,0 +1,124 @@
+@model ConfirmationViewModel
+@{
+    ViewData["Title"] = "Đặt vé thành công!";
+    Layout = "_Layout";
+    var b = Model.Booking;
+}
+
+<div class="max-w-2xl mx-auto">
+
+    <!-- Success animation header -->
+    <div class="text-center py-10">
+        <div class="text-7xl mb-4" style="animation:pop .4s cubic-bezier(.36,.07,.19,.97) both">🎉</div>
+        <h2 class="text-3xl font-black text-zinc-100">Đặt vé thành công!</h2>
+        <p class="text-zinc-400 mt-2">Cảm ơn bạn. Vui lòng xuất trình mã đặt vé khi đến rạp.</p>
+    </div>
+
+    <!-- Booking code card -->
+    <div class="rounded-2xl p-8 text-center mb-6"
+         style="background:linear-gradient(135deg,#059669,#0d9488);box-shadow:0 0 40px rgba(16,185,129,.25)">
+        <div class="text-emerald-100/70 text-xs uppercase tracking-widest mb-2">Mã đặt vé</div>
+        <div class="text-5xl font-black text-white tracking-[.25em]">@b.BookingCode</div>
+        <div class="text-emerald-100/60 text-xs mt-3">📅 @b.BookingTime.ToString("HH:mm – dd/MM/yyyy")</div>
+    </div>
+
+    <!-- Details card -->
+    <div class="rounded-2xl border border-zinc-800 bg-zinc-900/70 overflow-hidden mb-4">
+
+        <!-- Movie row -->
+        <div class="p-5 border-b border-zinc-800/60 flex items-start gap-4">
+            @if (!string.IsNullOrEmpty(b.Showtime?.Movie?.PosterUrl))
+            {
+                <img src="@b.Showtime.Movie.PosterUrl" alt="Poster"
+                     class="w-14 h-20 object-cover rounded-xl flex-shrink-0 opacity-90" />
+            }
+            <div>
+                <div class="text-lg font-bold text-zinc-100">@b.Showtime?.Movie?.Title</div>
+                <div class="text-zinc-400 text-sm mt-1">
+                    <div>🕐 @b.Showtime?.StartTime.ToString("HH:mm – dddd, dd/MM/yyyy")</div>
+                    <div>🏛 @b.Showtime?.Room?.RoomName</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seats -->
+        <div class="p-5 border-b border-zinc-800/60">
+            <div class="text-zinc-500 text-xs uppercase tracking-widest mb-2">Ghế đã đặt</div>
+            <div class="flex flex-wrap gap-2">
+                @foreach (var code in Model.SeatCodes)
+                {
+                    <span class="px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm font-bold">
+                        @code
+                    </span>
+                }
+            </div>
+        </div>
+
+        <!-- F&B -->
+        @if (b.BookingFoodItems?.Any() == true)
+        {
+            <div class="p-5 border-b border-zinc-800/60">
+                <div class="text-zinc-500 text-xs uppercase tracking-widest mb-2">Đồ ăn & Nước uống</div>
+                <div class="space-y-1.5">
+                    @foreach (var bf in b.BookingFoodItems)
+                    {
+                        <div class="flex justify-between text-sm">
+                            <span class="text-zinc-300">@bf.FoodItem?.Name <span class="text-zinc-500">×@bf.Quantity</span></span>
+                            <span class="text-zinc-200 font-medium">@((bf.UnitPrice * bf.Quantity).ToString("N0")) đ</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Payment summary -->
+        <div class="p-5">
+            <div class="space-y-2 text-sm">
+                @if (b.Voucher != null)
+                {
+                    <div class="flex justify-between text-emerald-400">
+                        <span>Mã giảm giá (@b.Voucher.Code)</span>
+                        <span>–@b.DiscountAmount.ToString("N0") đ</span>
+                    </div>
+                }
+                <div class="flex justify-between items-center pt-2 border-t border-zinc-800">
+                    <span class="font-bold text-zinc-100 text-base">Đã thanh toán</span>
+                    <span class="text-2xl font-black text-emerald-400">@b.FinalAmount.ToString("N0") đ</span>
+                </div>
+                <div class="flex justify-between text-zinc-500 text-xs">
+                    <span>Phương thức</span>
+                    <span>
+                        @switch (b.PaymentMethod)
+                        {
+                            case PaymentMethod.BankCard: <text>💳 Thẻ ngân hàng</text> break;
+                            case PaymentMethod.EWallet:  <text>📱 Ví điện tử</text> break;
+                            default:                     <text>💵 Tiền mặt tại quầy</text> break;
+                        }
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3 justify-center mt-6 pb-10">
+        <a asp-action="MyBookings"
+           class="px-6 py-3 rounded-xl border border-zinc-700 hover:border-zinc-600 text-zinc-300 hover:text-zinc-100 text-sm font-medium transition-colors flex items-center gap-2">
+            <i class="ph ph-list-bullets"></i> Lịch sử đặt vé
+        </a>
+        <a asp-controller="Home" asp-action="Index"
+           class="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold transition-colors flex items-center gap-2">
+            <i class="ph ph-film-strip"></i> Xem phim khác
+        </a>
+    </div>
+</div>
+
+@section Styles {
+<style>
+    @@keyframes pop {
+        0%  { transform: scale(0); opacity: 0; }
+        70% { transform: scale(1.15); }
+        100%{ transform: scale(1); opacity: 1; }
+    }
+</style>
+}

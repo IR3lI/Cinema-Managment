@@ -278,4 +278,6 @@ C:\Users\tranp\Documents\CineManagement\CineManagement\obj\Debug\net10.0\refint\
 C:\Users\tranp\Documents\CineManagement\CineManagement\obj\Debug\net10.0\CineManagement.pdb
 C:\Users\tranp\Documents\CineManagement\CineManagement\obj\Debug\net10.0\CineManagement.genruntimeconfig.cache
 C:\Users\tranp\Documents\CineManagement\CineManagement\obj\Debug\net10.0\ref\CineManagement.dll
+C:\Users\tranp\Documents\CineManagement\CineManagement\obj\Debug\net10.0\CineManagement.sourcelink.json
+C:\Users\tranp\Documents\CineManagement\CineManagement\bin\Debug\net10.0\skills-lock.json
 C:\Users\tranp\Documents\CineManagement\CineManagement\bin\Debug\net10.0\app.db
