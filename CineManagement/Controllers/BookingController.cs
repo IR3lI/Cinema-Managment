@@ -365,6 +365,25 @@ public class BookingController : Controller
             if (voucher != null) voucher.UsedCount++;
         }
 
+        // Generate Ticket records for each booked seat
+        foreach (var bs in booking.BookedSeats)
+        {
+            var ticketCode = "TK" + DateTime.Now.ToString("yyMMdd") + Random.Shared.Next(10000, 99999);
+            var seatCode = bs.Seat != null ? $"{bs.Seat.RowLabel}{bs.Seat.SeatNumber}" : $"Seat-{bs.SeatId}";
+            _context.Tickets.Add(new Ticket
+            {
+                BookingId = booking.BookingId,
+                ShowtimeId = booking.ShowtimeId,
+                SeatId = bs.SeatId,
+                TicketCode = ticketCode,
+                SeatCode = seatCode,
+                UnitPrice = bs.SeatPrice,
+                Status = TicketStatus.Issued,
+                QrPayload = ticketCode,
+                CreatedAt = now
+            });
+        }
+
         _context.Update(booking);
         await _context.SaveChangesAsync();
 
@@ -413,7 +432,7 @@ public class BookingController : Controller
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         return await _context.Bookings
-            .Include(b => b.BookedSeats)
+            .Include(b => b.BookedSeats).ThenInclude(bs => bs.Seat)
             .Include(b => b.BookingFoodItems)
             .Include(b => b.Voucher)
             .FirstOrDefaultAsync(b => b.BookingId == bookingId && b.UserId == userId);

@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using CineManagement.Data;
 using CineManagement.Models;
 using CineManagement.ViewModels;
+using CineManagement.Services;
 
 namespace CineManagement.Controllers;
 
@@ -9,13 +12,19 @@ public class AccountController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly ApplicationDbContext _context;
+    private readonly IFileStorageService _fileStorageService;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        ApplicationDbContext context,
+        IFileStorageService fileStorageService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _context = context;
+        _fileStorageService = fileStorageService;
     }
 
     // ── Register ─────────────────────────────────────────────────────────────
@@ -157,9 +166,10 @@ public class AccountController : Controller
             FullName = user.FullName,
             PhoneNumber = user.PhoneNumber,
             DateOfBirth = user.DateOfBirth,
-            Address = user.Address,
-            AvatarUrl = user.AvatarUrl
+            Address = user.Address
         };
+
+        await PopulateProfileStatsAsync(user, vm);
         return View(vm);
     }
 
@@ -168,25 +178,31 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Profile(ProfileViewModel model)
     {
-        if (!ModelState.IsValid) return View(model);
-
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return NotFound();
 
-        // Handle avatar upload
         if (model.AvatarFile != null && model.AvatarFile.Length > 0)
         {
-            var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "avatars");
-            Directory.CreateDirectory(uploadsDir);
+            if (!_fileStorageService.IsValidImage(model.AvatarFile, out var errorMessage))
+            {
+                ModelState.AddModelError("AvatarFile", errorMessage ?? "Ảnh đại diện không hợp lệ.");
+            }
+        }
 
-            var ext = Path.GetExtension(model.AvatarFile.FileName);
-            var fileName = $"{user.Id}{ext}";
-            var filePath = Path.Combine(uploadsDir, fileName);
+        if (!ModelState.IsValid)
+        {
+            await PopulateProfileStatsAsync(user, model);
+            return View(model);
+        }
 
-            using var stream = new FileStream(filePath, FileMode.Create);
-            await model.AvatarFile.CopyToAsync(stream);
-
-            user.AvatarUrl = $"/uploads/avatars/{fileName}";
+        // Handle avatar upload with IFileStorageService
+        if (model.AvatarFile != null && model.AvatarFile.Length > 0)
+        {
+            if (!string.IsNullOrEmpty(user.AvatarUrl))
+            {
+                _fileStorageService.DeleteFile(user.AvatarUrl);
+            }
+            user.AvatarUrl = await _fileStorageService.SaveImageAsync(model.AvatarFile, "avatars");
         }
 
         user.FullName = model.FullName;
@@ -197,14 +213,38 @@ public class AccountController : Controller
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
-            TempData["Success"] = "Cập nhật thông tin thành công!";
+            TempData["Success"] = "Cập nhật hồ sơ thành công!";
             return RedirectToAction(nameof(Profile));
         }
 
         foreach (var error in result.Errors)
             ModelState.AddModelError(string.Empty, error.Description);
 
+        await PopulateProfileStatsAsync(user, model);
         return View(model);
+    }
+
+    private async Task PopulateProfileStatsAsync(ApplicationUser user, ProfileViewModel vm)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        vm.RoleName = roles.FirstOrDefault() switch
+        {
+            "Admin" => "Quản trị viên",
+            "Staff" => "Nhân viên rạp",
+            _       => "Thành viên thân thiết"
+        };
+        vm.Email = user.Email;
+        vm.CreatedAt = user.CreatedAt;
+        vm.AvatarUrl = user.AvatarUrl;
+
+        var bookings = await _context.Bookings
+            .Include(b => b.Tickets)
+            .Where(b => b.UserId == user.Id && b.Status == BookingStatus.Confirmed)
+            .ToListAsync();
+
+        vm.TotalBookings = bookings.Count;
+        vm.TotalSpent = bookings.Sum(b => b.FinalAmount);
+        vm.TotalTickets = bookings.Sum(b => b.Tickets.Count);
     }
 
     // ── Change Password ───────────────────────────────────────────────────────

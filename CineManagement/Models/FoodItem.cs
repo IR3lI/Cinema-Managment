@@ -49,4 +49,12 @@ public class FoodItem
 
     [Display(Name = "Còn phục vụ")]
     public bool IsAvailable { get; set; } = true;
+
+    [Display(Name = "Ngày tạo")]
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    [Display(Name = "Ngày cập nhật")]
+    public DateTime? UpdatedAt { get; set; }
+
+    public ICollection<OrderFnB> OrderFnBs { get; set; } = new List<OrderFnB>();
 }

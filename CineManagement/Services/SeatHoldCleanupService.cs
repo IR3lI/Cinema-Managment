@@ -24,12 +24,12 @@ public class SeatHoldCleanupService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            await CleanupExpiredHoldsAsync(stoppingToken);
             await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
-            await CleanupExpiredHoldsAsync();
         }
     }
 
-    private async Task CleanupExpiredHoldsAsync()
+    private async Task CleanupExpiredHoldsAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -37,6 +37,18 @@ public class SeatHoldCleanupService : BackgroundService
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             var now = DateTime.Now;
+
+            // Luồng mới dùng HoldSeat. Chỉ cập nhật trạng thái để giữ audit trail;
+            // ghế trở thành khả dụng ngay vì mọi query availability đều lọc ExpiresAt.
+            var expiredHolds = await context.HoldSeats
+                .Where(h => h.Status == HoldSeatStatus.Active && h.ExpiresAt <= now)
+                .ToListAsync(cancellationToken);
+
+            foreach (var hold in expiredHolds)
+            {
+                hold.Status = HoldSeatStatus.Expired;
+                hold.UpdatedAt = now;
+            }
 
             // Find all Pending bookings whose hold has expired
             var expiredBookings = await context.Bookings
@@ -54,8 +66,11 @@ public class SeatHoldCleanupService : BackgroundService
                 _logger.LogInformation("Booking {BookingId} ({Code}) expired – seats released.", booking.BookingId, booking.BookingCode);
             }
 
-            if (toExpire.Count > 0)
-                await context.SaveChangesAsync();
+            if (expiredHolds.Count > 0 || toExpire.Count > 0)
+                await context.SaveChangesAsync(cancellationToken);
+
+            if (expiredHolds.Count > 0)
+                _logger.LogInformation("Released {Count} expired seat holds.", expiredHolds.Count);
         }
         catch (Exception ex)
         {

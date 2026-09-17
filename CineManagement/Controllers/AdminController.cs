@@ -29,9 +29,10 @@ public class AdminController : Controller
         ViewBag.TotalFood      = await _context.FoodItems.CountAsync(f => f.IsAvailable);
 
         // Sprint 3 stats
-        ViewBag.TodayBookings  = await _context.Bookings.CountAsync(b => b.BookingTime.Date == today && b.Status == BookingStatus.Confirmed);
+        var tomorrow = today.AddDays(1);
+        ViewBag.TodayBookings  = await _context.Bookings.CountAsync(b => b.BookingTime >= today && b.BookingTime < tomorrow && b.Status == BookingStatus.Confirmed);
         ViewBag.TodayRevenue   = await _context.Bookings
-            .Where(b => b.BookingTime.Date == today && b.Status == BookingStatus.Confirmed)
+            .Where(b => b.BookingTime >= today && b.BookingTime < tomorrow && b.Status == BookingStatus.Confirmed)
             .SumAsync(b => (decimal?)b.FinalAmount) ?? 0;
 
         var recentMovies = await _context.Movies
@@ -57,7 +58,11 @@ public class AdminController : Controller
         if (status.HasValue)
             query = query.Where(b => b.Status == status);
         if (date.HasValue)
-            query = query.Where(b => b.BookingTime.Date == date.Value.Date);
+        {
+            var filterDate = date.Value.Date;
+            var nextDate = filterDate.AddDays(1);
+            query = query.Where(b => b.BookingTime >= filterDate && b.BookingTime < nextDate);
+        }
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(b => b.BookingCode.Contains(search) || b.User!.Email!.Contains(search));
 

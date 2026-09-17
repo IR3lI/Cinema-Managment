@@ -64,6 +64,9 @@ public class ProfileViewModel
     [Display(Name = "Họ và tên")]
     public string FullName { get; set; } = string.Empty;
 
+    [Display(Name = "Email")]
+    public string? Email { get; set; }
+
     [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
     [Display(Name = "Số điện thoại")]
     public string? PhoneNumber { get; set; }
@@ -80,6 +83,12 @@ public class ProfileViewModel
 
     [Display(Name = "Ảnh đại diện mới")]
     public IFormFile? AvatarFile { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public string RoleName { get; set; } = "Thành viên";
+    public int TotalBookings { get; set; }
+    public decimal TotalSpent { get; set; }
+    public int TotalTickets { get; set; }
 }
 
 // ── Change Password ───────────────────────────────────────────────────────────

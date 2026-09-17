@@ -38,7 +38,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 // ── Application Services ───────────────────────────────────────────────────
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
-builder.Services.AddHostedService<SeatHoldCleanupService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(SmtpOptions.SectionName));
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddHostedService<SeatHoldTimeoutWorker>();
 
 // ── MVC ──────────────────────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews();
@@ -67,6 +72,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
 app.MapStaticAssets();
 
 app.MapControllerRoute(

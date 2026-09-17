@@ -50,7 +50,16 @@ public class Showtime
     [Display(Name = "Ghi chú")]
     public string? Notes { get; set; }
 
+    [Display(Name = "Ngày tạo")]
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    [Display(Name = "Ngày cập nhật")]
+    public DateTime? UpdatedAt { get; set; }
+
     // Navigation
     public Movie? Movie { get; set; }
     public ScreeningRoom? Room { get; set; }
+    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+    public ICollection<HoldSeat> HoldSeats { get; set; } = new List<HoldSeat>();
 }

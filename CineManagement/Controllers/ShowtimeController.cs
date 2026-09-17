@@ -28,7 +28,12 @@ public class ShowtimeController : Controller
 
         if (movieId.HasValue) query = query.Where(s => s.MovieId == movieId);
         if (roomId.HasValue)  query = query.Where(s => s.RoomId  == roomId);
-        if (date.HasValue)    query = query.Where(s => s.StartTime.Date == date.Value.Date);
+        if (date.HasValue)
+        {
+            var filterDate = date.Value.Date;
+            var nextDate = filterDate.AddDays(1);
+            query = query.Where(s => s.StartTime >= filterDate && s.StartTime < nextDate);
+        }
 
         var movies = await _context.Movies.Where(m => m.IsActive).OrderBy(m => m.Title).ToListAsync();
         var rooms  = await _context.ScreeningRooms.Where(r => r.IsActive).OrderBy(r => r.RoomName).ToListAsync();

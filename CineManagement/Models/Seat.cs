@@ -41,4 +41,6 @@ public class Seat
 
     // Navigation
     public ScreeningRoom? Room { get; set; }
+    public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+    public ICollection<HoldSeat> HoldSeats { get; set; } = new List<HoldSeat>();
 }

@@ -76,8 +76,14 @@ public class Movie
 
     public bool IsActive { get; set; } = true;
 
+    [Display(Name = "Ngày cập nhật")]
+    public DateTime? UpdatedAt { get; set; }
+
     // FK
     [Display(Name = "Thể loại")]
     public int? GenreId { get; set; }
     public Genre? Genre { get; set; }
+
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public ICollection<Showtime> Showtimes { get; set; } = new List<Showtime>();
 }

@@ -15,7 +15,10 @@ public enum BookingStatus
     Cancelled,
 
     [Display(Name = "Hết hạn")]
-    Expired
+    Expired,
+
+    [Display(Name = "Đã hoàn tiền")]
+    Refunded
 }
 
 public enum PaymentMethod
@@ -30,11 +33,16 @@ public enum PaymentMethod
     EWallet
 }
 
+/// <summary>
+/// Đơn hàng tổng (Order / Booking): vé + F&amp;B + voucher + thanh toán.
+/// </summary>
 public class Booking
 {
+    [Key]
     public int BookingId { get; set; }
 
     [Required]
+    [StringLength(450)]
     public string UserId { get; set; } = string.Empty;
 
     [Required]
@@ -42,8 +50,20 @@ public class Booking
 
     public int? VoucherId { get; set; }
 
+    [StringLength(20)]
+    [Display(Name = "Mã đặt vé")]
+    public string BookingCode { get; set; } = string.Empty;
+
     [Display(Name = "Thời gian đặt")]
     public DateTime BookingTime { get; set; } = DateTime.Now;
+
+    [Column(TypeName = "decimal(15,0)")]
+    [Display(Name = "Tiền vé")]
+    public decimal TicketAmount { get; set; }
+
+    [Column(TypeName = "decimal(15,0)")]
+    [Display(Name = "Tiền F&B")]
+    public decimal FnBAmount { get; set; }
 
     [Column(TypeName = "decimal(15,0)")]
     [Display(Name = "Tổng tiền gốc")]
@@ -57,24 +77,57 @@ public class Booking
     [Display(Name = "Thành tiền")]
     public decimal FinalAmount { get; set; }
 
-    [Display(Name = "Trạng thái")]
+    [Display(Name = "Trạng thái đơn")]
     public BookingStatus Status { get; set; } = BookingStatus.Pending;
+
+    [Display(Name = "Trạng thái thanh toán")]
+    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
 
     [Display(Name = "Phương thức thanh toán")]
     public PaymentMethod? PaymentMethod { get; set; }
 
+    [StringLength(100)]
+    [Display(Name = "Mã giao dịch")]
+    public string? PaymentReference { get; set; }
+
     [Display(Name = "Thời gian thanh toán")]
     public DateTime? PaidAt { get; set; }
 
-    // Unique booking reference code
+    [EmailAddress]
+    [StringLength(256)]
+    [Display(Name = "Email nhận vé")]
+    public string? ContactEmail { get; set; }
+
     [StringLength(20)]
-    [Display(Name = "Mã đặt vé")]
-    public string BookingCode { get; set; } = string.Empty;
+    [Display(Name = "SĐT liên hệ")]
+    public string? ContactPhone { get; set; }
+
+    [Display(Name = "Đã gửi email vé")]
+    public bool TicketEmailSent { get; set; }
+
+    [Display(Name = "Gửi email lúc")]
+    public DateTime? TicketEmailSentAt { get; set; }
+
+    [StringLength(500)]
+    [Display(Name = "Ghi chú")]
+    public string? Notes { get; set; }
+
+    [Display(Name = "Ngày tạo")]
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    [Display(Name = "Ngày cập nhật")]
+    public DateTime? UpdatedAt { get; set; }
 
     // Navigation
     public ApplicationUser? User { get; set; }
     public Showtime? Showtime { get; set; }
     public Voucher? Voucher { get; set; }
+
+    public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+    public ICollection<OrderFnB> OrderFnBs { get; set; } = new List<OrderFnB>();
+    public ICollection<HoldSeat> HoldSeats { get; set; } = new List<HoldSeat>();
+
+    /// <summary>Giữ cho luồng đặt vé hiện tại (HoldUntil trên từng ghế). Sprint mới dùng Ticket + HoldSeat.</summary>
     public ICollection<BookedSeat> BookedSeats { get; set; } = new List<BookedSeat>();
     public ICollection<BookingFoodItem> BookingFoodItems { get; set; } = new List<BookingFoodItem>();
 }

@@ -27,6 +27,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<BookedSeat> BookedSeats { get; set; }
     public DbSet<BookingFoodItem> BookingFoodItems { get; set; }
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<OrderFnB> OrderFnBs { get; set; }
+    public DbSet<HoldSeat> HoldSeats { get; set; }
+    public DbSet<Review> Reviews { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -55,7 +59,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Showtime -> Movie (many-to-one)
         builder.Entity<Showtime>()
             .HasOne(st => st.Movie)
-            .WithMany()
+            .WithMany(m => m.Showtimes)
             .HasForeignKey(st => st.MovieId)
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -74,20 +78,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<ScreeningRoom>().Ignore(r => r.Capacity);
         builder.Entity<Seat>().Ignore(s => s.SeatCode);
         builder.Entity<BookingFoodItem>().Ignore(b => b.SubTotal);
+        builder.Entity<OrderFnB>().Ignore(o => o.SubTotal);
+        builder.Entity<HoldSeat>().Ignore(h => h.IsActive);
 
         // Booking -> User
         builder.Entity<Booking>()
             .HasOne(b => b.User)
-            .WithMany()
+            .WithMany(u => u.Bookings)
             .HasForeignKey(b => b.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Booking -> Showtime
         builder.Entity<Booking>()
             .HasOne(b => b.Showtime)
-            .WithMany()
+            .WithMany(st => st.Bookings)
             .HasForeignKey(b => b.ShowtimeId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Booking>()
+            .HasIndex(b => b.BookingCode)
+            .IsUnique();
 
         // Booking -> Voucher (optional)
         builder.Entity<Booking>()
@@ -127,6 +137,109 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Unique index on Voucher.Code
         builder.Entity<Voucher>()
             .HasIndex(v => v.Code)
+            .IsUnique();
+
+        // Ticket -> Booking
+        builder.Entity<Ticket>()
+            .HasOne(t => t.Booking)
+            .WithMany(b => b.Tickets)
+            .HasForeignKey(t => t.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Ticket>()
+            .HasOne(t => t.Showtime)
+            .WithMany(st => st.Tickets)
+            .HasForeignKey(t => t.ShowtimeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Ticket>()
+            .HasOne(t => t.Seat)
+            .WithMany(s => s.Tickets)
+            .HasForeignKey(t => t.SeatId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Ticket>()
+            .HasOne(t => t.CheckedInBy)
+            .WithMany()
+            .HasForeignKey(t => t.CheckedInByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Ticket>()
+            .HasIndex(t => t.TicketCode)
+            .IsUnique();
+
+        builder.Entity<Ticket>()
+            .HasIndex(t => new { t.BookingId, t.SeatId })
+            .IsUnique();
+
+        // Ghế đã bán / đang phát hành: không cho 2 vé sống cùng suất + ghế
+        builder.Entity<Ticket>()
+            .HasIndex(t => new { t.ShowtimeId, t.SeatId })
+            .IsUnique()
+            .HasFilter("\"Status\" IN (0, 1, 2)");
+
+        // OrderFnB -> Booking
+        builder.Entity<OrderFnB>()
+            .HasOne(o => o.Booking)
+            .WithMany(b => b.OrderFnBs)
+            .HasForeignKey(o => o.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<OrderFnB>()
+            .HasOne(o => o.FoodItem)
+            .WithMany(f => f.OrderFnBs)
+            .HasForeignKey(o => o.FoodItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // HoldSeat
+        builder.Entity<HoldSeat>()
+            .HasOne(h => h.Showtime)
+            .WithMany(st => st.HoldSeats)
+            .HasForeignKey(h => h.ShowtimeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<HoldSeat>()
+            .HasOne(h => h.Seat)
+            .WithMany(s => s.HoldSeats)
+            .HasForeignKey(h => h.SeatId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<HoldSeat>()
+            .HasOne(h => h.User)
+            .WithMany(u => u.HoldSeats)
+            .HasForeignKey(h => h.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<HoldSeat>()
+            .HasOne(h => h.Booking)
+            .WithMany(b => b.HoldSeats)
+            .HasForeignKey(h => h.BookingId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // SQLite: một ghế / suất chỉ được Active-hold một lần
+        builder.Entity<HoldSeat>()
+            .HasIndex(h => new { h.ShowtimeId, h.SeatId })
+            .IsUnique()
+            .HasFilter("\"Status\" = 0");
+
+        builder.Entity<HoldSeat>()
+            .HasIndex(h => h.ExpiresAt);
+
+        // Review: 1 user / 1 phim
+        builder.Entity<Review>()
+            .HasOne(r => r.Movie)
+            .WithMany(m => m.Reviews)
+            .HasForeignKey(r => r.MovieId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Review>()
+            .HasOne(r => r.User)
+            .WithMany(u => u.Reviews)
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Review>()
+            .HasIndex(r => new { r.UserId, r.MovieId })
             .IsUnique();
     }
 }
