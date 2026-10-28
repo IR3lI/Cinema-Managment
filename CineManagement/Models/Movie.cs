@@ -36,6 +36,10 @@ public class Movie
     [Display(Name = "Diễn viên")]
     public string? Actors { get; set; }
 
+    [StringLength(100)]
+    [Display(Name = "Quốc gia")]
+    public string? Country { get; set; } = "Mỹ";
+
     [Range(1, 600)]
     [Display(Name = "Thời lượng (phút)")]
     public int Duration { get; set; }
@@ -66,11 +70,19 @@ public class Movie
 
     [StringLength(10)]
     [Display(Name = "Phân loại (P/C13/C16/C18)")]
-    public string? AgeRating { get; set; }
+    public string? AgeRating { get; set; } = "P";
 
     [StringLength(100)]
     [Display(Name = "Ngôn ngữ")]
     public string? Language { get; set; } = "Tiếng Việt";
+
+    [StringLength(50)]
+    [Display(Name = "Định dạng (2D/3D/IMAX)")]
+    public string? Format { get; set; } = "2D";
+
+    [StringLength(100)]
+    [Display(Name = "Phụ đề / Lồng tiếng")]
+    public string? SubtitleType { get; set; } = "Phụ đề Việt";
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 

@@ -1,0 +1,57 @@
+## .NET Build & Output
+[Bb]in/
+[Oo]bj/
+publish/
+*.exe
+*.dll
+*.pdb
+*.deps.json
+*.runtimeconfig.json
+*.staticwebassets.runtime.json
+*.staticwebassets.endpoints.json
+
+## MariaDB Embedded / Local Server & Data
+mariadb-*/
+*.frm
+*.ibd
+ib_logfile*
+ibdata*
+ibtmp*
+
+## SQLite & Temporary Databases
+app.db
+app.db-shm
+app.db-wal
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+## IDE & User Settings
+.vs/
+.vscode/
+*.user
+*.userprefs
+*.suo
+.DS_Store
+Thumbs.db
+
+## Microsoft Office Temporary Files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+## Python Cache
+__pycache__/
+*.pyc
+
+## Archives & Logs
+*.zip
+*.tar.gz
+*.7z
+
+## Root level redundant wwwroot and nginx binaries
+/wwwroot/
+nginx/bin/
+*.log

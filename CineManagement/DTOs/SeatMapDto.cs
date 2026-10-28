@@ -15,8 +15,20 @@ public enum SeatAvailabilityStatus
     Sold = 2
 }
 
+public sealed record SeatTypeLegendDto
+{
+    public int SeatTypeId { get; init; }
+    public string Code { get; init; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
+    public decimal Surcharge { get; init; }
+    public int ColSpan { get; init; } = 1;
+    public string ColorCode { get; init; } = "#6c757d";
+    public string? Description { get; init; }
+}
+
 public sealed record SeatCellDto
 {
+    public int ShowtimeSeatId { get; init; }
     public int SeatId { get; init; }
 
     [Required]
@@ -24,14 +36,20 @@ public sealed record SeatCellDto
     public string SeatCode { get; init; } = string.Empty;
 
     [Required]
-    [StringLength(2)]
+    [StringLength(5)]
     public string RowLabel { get; init; } = string.Empty;
 
     public int SeatNumber { get; init; }
+    public int GridRow { get; init; } = 1;
+    public int GridCol { get; init; } = 1;
+    public int ColSpan { get; init; } = 1;
+    public string ColorCode { get; init; } = "#6c757d";
+    public int? SeatTypeId { get; init; }
+    public string SeatTypeCode { get; init; } = "STANDARD";
+    public string SeatTypeName { get; init; } = "Thường";
+    public SeatTypeEnum SeatType { get; init; } = SeatTypeEnum.Standard;
 
-    public SeatType SeatType { get; init; }
-
-    public SeatAvailabilityStatus Status { get; init; }
+    public SeatAvailabilityStatus Status { get; init; } = SeatAvailabilityStatus.Available;
 
     /// <summary>True khi ghế đang được chính user hiện tại giữ.</summary>
     public bool IsHeldByCurrentUser { get; init; }
@@ -43,15 +61,17 @@ public sealed record SeatCellDto
 public sealed record SeatRowDto
 {
     [Required]
-    [StringLength(2)]
+    [StringLength(5)]
     public string RowLabel { get; init; } = string.Empty;
+
+    public int GridRow { get; init; } = 1;
 
     [Required]
     [MinLength(1)]
     public IReadOnlyList<SeatCellDto> Seats { get; init; } = [];
 }
 
-/// <summary>Sơ đồ ghế của một suất chiếu kèm trạng thái Trống / Đang giữ / Đã bán.</summary>
+/// <summary>Sơ đồ ghế của một suất chiếu kèm kích thước lưới 2D và trạng thái thời gian thực.</summary>
 public sealed record SeatMapDto
 {
     [Range(1, int.MaxValue)]
@@ -71,18 +91,20 @@ public sealed record SeatMapDto
     [StringLength(100)]
     public string RoomName { get; init; } = string.Empty;
 
+    public int TotalRows { get; init; } = 10;
+    public int TotalCols { get; init; } = 16;
+
     public DateTime StartTime { get; init; }
 
     [Range(0, double.MaxValue)]
     public decimal BaseTicketPrice { get; init; }
 
     public int TotalSeats { get; init; }
-
     public int AvailableSeats { get; init; }
 
     public DateTime? MyHoldExpiresAt { get; init; }
 
-    [Required]
-    [MinLength(1)]
+    public IReadOnlyList<SeatTypeLegendDto> SeatTypes { get; init; } = [];
     public IReadOnlyList<SeatRowDto> Rows { get; init; } = [];
+    public IReadOnlyList<SeatCellDto> AllSeats { get; init; } = [];
 }

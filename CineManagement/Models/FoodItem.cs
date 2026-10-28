@@ -21,8 +21,12 @@ public enum FoodCategory
     Other
 }
 
+/// <summary>
+/// Bảng món bắp nước / combo (concessions / food_items)
+/// </summary>
 public class FoodItem
 {
+    [Key]
     public int FoodItemId { get; set; }
 
     [Required(ErrorMessage = "Tên món không được để trống")]
@@ -56,5 +60,6 @@ public class FoodItem
     [Display(Name = "Ngày cập nhật")]
     public DateTime? UpdatedAt { get; set; }
 
-    public ICollection<OrderFnB> OrderFnBs { get; set; } = new List<OrderFnB>();
+    // Navigation
+    public ICollection<BookingConcession> BookingConcessions { get; set; } = new List<BookingConcession>();
 }

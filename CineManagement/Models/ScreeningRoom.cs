@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CineManagement.Models;
 
@@ -14,10 +15,20 @@ public enum RoomType
     IMAX
 }
 
+/// <summary>
+/// Bảng phòng chiếu (auditoriums / screening_rooms) - Quản lý kích thước ma trận lưới 2D và cấu hình phòng.
+/// Liên kết N-1 với Cụm rạp (Cinema).
+/// </summary>
 public class ScreeningRoom
 {
     [Key]
     public int RoomId { get; set; }
+
+    [Display(Name = "Cụm rạp")]
+    public int? CinemaId { get; set; }
+
+    [ForeignKey(nameof(CinemaId))]
+    public Cinema? Cinema { get; set; }
 
     [Required(ErrorMessage = "Tên phòng không được để trống")]
     [StringLength(100)]
@@ -27,16 +38,37 @@ public class ScreeningRoom
     [Display(Name = "Loại phòng")]
     public RoomType RoomType { get; set; } = RoomType.Standard;
 
-    [Range(1, 26)]
-    [Display(Name = "Số hàng")]
-    public int Rows { get; set; } = 8;
+    /// <summary>
+    /// Tổng số hàng trong ma trận lưới 2D (bao gồm cả hàng dành cho hành lang đi lại).
+    /// </summary>
+    [Range(1, 50)]
+    [Display(Name = "Tổng số hàng lưới (TotalRows)")]
+    public int TotalRows { get; set; } = 10;
 
-    [Range(1, 30)]
-    [Display(Name = "Số ghế mỗi hàng")]
-    public int SeatsPerRow { get; set; } = 12;
+    /// <summary>
+    /// Tổng số cột trong ma trận lưới 2D (bao gồm cả cột dành cho lối đi / hành lang).
+    /// </summary>
+    [Range(1, 50)]
+    [Display(Name = "Tổng số cột lưới (TotalCols)")]
+    public int TotalCols { get; set; } = 16;
+
+    // Tương thích ngược với các controller / view cũ
+    [Display(Name = "Số hàng ghế vật lý")]
+    public int Rows
+    {
+        get => TotalRows;
+        set => TotalRows = value;
+    }
+
+    [Display(Name = "Số cột ghế vật lý")]
+    public int SeatsPerRow
+    {
+        get => TotalCols;
+        set => TotalCols = value;
+    }
 
     [Display(Name = "Sức chứa")]
-    public int Capacity => Rows * SeatsPerRow;
+    public int Capacity => Seats != null && Seats.Count > 0 ? Seats.Count(s => s.IsActive) : (TotalRows * TotalCols);
 
     [StringLength(500)]
     [Display(Name = "Mô tả")]

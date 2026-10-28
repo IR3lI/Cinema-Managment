@@ -123,11 +123,8 @@ public class Booking
     public Showtime? Showtime { get; set; }
     public Voucher? Voucher { get; set; }
 
+    // 10 Bảng chuẩn: Tickets, Payments, BookingConcessions
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
-    public ICollection<OrderFnB> OrderFnBs { get; set; } = new List<OrderFnB>();
-    public ICollection<HoldSeat> HoldSeats { get; set; } = new List<HoldSeat>();
-
-    /// <summary>Giữ cho luồng đặt vé hiện tại (HoldUntil trên từng ghế). Sprint mới dùng Ticket + HoldSeat.</summary>
-    public ICollection<BookedSeat> BookedSeats { get; set; } = new List<BookedSeat>();
-    public ICollection<BookingFoodItem> BookingFoodItems { get; set; } = new List<BookingFoodItem>();
+    public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public ICollection<BookingConcession> BookingConcessions { get; set; } = new List<BookingConcession>();
 }

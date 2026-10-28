@@ -24,6 +24,5 @@ public class ApplicationUser : IdentityUser
     // Navigation
     public Staff? Staff { get; set; }
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-    public ICollection<HoldSeat> HoldSeats { get; set; } = new List<HoldSeat>();
     public ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

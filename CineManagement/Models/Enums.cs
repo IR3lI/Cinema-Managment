@@ -95,3 +95,45 @@ public enum ReviewStatus
     [Display(Name = "Ẩn")]
     Hidden = 2
 }
+
+public enum SeatTypeEnum
+{
+    [Display(Name = "Thường")]
+    Standard = 1,
+
+    [Display(Name = "VIP")]
+    VIP = 2,
+
+    [Display(Name = "Ghế đôi")]
+    Couple = 3
+}
+
+public enum ShowtimeSeatStatus
+{
+    [Display(Name = "Trống")]
+    Available = 0,
+
+    [Display(Name = "Đang giữ")]
+    Held = 1,
+
+    [Display(Name = "Đã bán")]
+    Reserved = 2
+}
+
+public enum PaymentProvider
+{
+    [Display(Name = "VietQR (Napas 247)")]
+    VietQR = 0,
+
+    [Display(Name = "Tiền mặt tại quầy")]
+    Cash = 1,
+
+    [Display(Name = "Thẻ ngân hàng")]
+    BankCard = 2,
+
+    [Display(Name = "Ví MoMo")]
+    MoMo = 3,
+
+    [Display(Name = "Cổng PayOS")]
+    PayOS = 4
+}
