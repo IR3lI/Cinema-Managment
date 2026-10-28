@@ -16,4 +16,9 @@ public interface IReportService
     Task<RoomOccupancyRateDto?> GetRoomOccupancyRateAsync(
         int showtimeId,
         CancellationToken cancellationToken = default);
+
+    Task<DetailedAnalyticsDto> GetDetailedAnalyticsAsync(
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        CancellationToken cancellationToken = default);
 }

@@ -8,4 +8,8 @@ public interface IEmailService
         string toEmail,
         OrderResponseDto orderDetails,
         CancellationToken cancellationToken = default);
+
+    Task SendTicketEmailAsync(
+        int bookingId,
+        CancellationToken cancellationToken = default);
 }

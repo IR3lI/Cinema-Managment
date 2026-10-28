@@ -2,19 +2,28 @@ using CineManagement.DTOs;
 
 namespace CineManagement.Services;
 
-/// <summary>Core booking flow Sprint 3: sơ đồ ghế → giữ ghế → tính tiền → tạo đơn / thanh toán.</summary>
+/// <summary>
+/// Core booking flow: sơ đồ ghế 2D → giữ ghế (ShowtimeSeats) → tính tiền → tạo đơn & thanh toán.
+/// </summary>
 public interface IBookingService
 {
-    /// <summary>Sơ đồ ghế của suất chiếu, trạng thái Trống / Đang giữ / Đã bán.</summary>
+    /// <summary>Sơ đồ ghế của suất chiếu kèm ma trận lưới 2D, chú thích loại ghế và trạng thái Trống / Đang giữ / Đã bán.</summary>
     Task<SeatMapDto> GetSeatMapAsync(
         int showtimeId,
-        string? userId,
+        string? userId = null,
         CancellationToken cancellationToken = default);
 
-    /// <summary>Giữ ghế tạm thời (DB HoldSeat). Trả về ghế conflict nếu không giữ được.</summary>
+    /// <summary>Giữ ghế tạm thời (ShowtimeSeats với Optimistic Concurrency). Trả về ghế conflict nếu không giữ được.</summary>
     Task<HoldSeatResponseDto> HoldSeatAsync(
         string userId,
         HoldSeatRequestDto request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Giải phóng ghế đã giữ nếu người dùng hủy hoặc đổi ghế.</summary>
+    Task<bool> ReleaseSeatAsync(
+        string userId,
+        int showtimeId,
+        List<int>? seatIds = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>Tính breakdown vé + F&amp;B + voucher, không ghi đơn.</summary>
@@ -23,7 +32,7 @@ public interface IBookingService
         string? userId = null,
         CancellationToken cancellationToken = default);
 
-    /// <summary>Tạo Booking + Ticket + OrderFnB, chuyển HoldSeat sang Converted khi thanh toán.</summary>
+    /// <summary>Tạo Booking + Tickets + BookingConcessions, chuyển ShowtimeSeats sang Reserved khi thanh toán.</summary>
     Task<BookingResponseDto> CreateBookingAsync(
         string userId,
         BookingRequestDto request,
