@@ -65,7 +65,7 @@
                             <small class="text-muted">@b.Showtime?.StartTime.ToString("dd/MM/yyyy")</small><br />
                             <small class="text-muted">@b.Showtime?.Room?.RoomName</small>
                         </td>
-                        <td><span class="badge bg-primary">@b.BookedSeats.Count ghế</span></td>
+                        <td><span class="badge bg-primary">@b.Tickets.Count ghế</span></td>
                         <td class="fw-bold text-success">@b.FinalAmount.ToString("N0") đ</td>
                         <td>
                             @switch (b.Status)
