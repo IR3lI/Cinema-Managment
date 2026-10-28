@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Script tạo sơ đồ quan hệ thực thể (Database ERD - 14 Bảng) chuẩn định dạng draw.io (.drawio)
-Dự án: Cinema Management System (CineManagement)
-Mở được trực tiếp trên: draw.io, diagrams.net, VS Code Draw.io extension
+Script sua loi triet de va ve lai ERD chuan Draw.io:
+1. KHONG DUNG BAT KY THE HTML NAO (&lt;b&gt;, &amp;nbsp;, <span...>) de tranh loi hien thi ma HTML tho tren Draw.io canvas nhu trong anh nguoi dung gui.
+2. Dat html=0 tren tat ca cell de Draw.io render text thuan tuy 100% sach se.
+3. Dung 1 tong mau duy nhat: Header mau xam toi nhe (#2D3748 / #1E293B) hoac trang vien den, kieu dang cong nghiep, vien manh #334155.
+4. Font chu Consolas / Helvetica ro rang, can le chuan xac.
 """
 
 import xml.etree.ElementTree as ET
@@ -11,23 +13,31 @@ import sys
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
-def build_drawio_erd():
+def generate_clean_erd():
+    HEADER_BG = "#1E293B"       # 1 mau duy nhat cho header tat ca cac bang
+    HEADER_TEXT = "#FFFFFF"     # Chu trang tren nen toi
+    BORDER_COLOR = "#334155"    # Duong vien bang
+    LINE_COLOR = "#334155"      # Duong lien ket quan he
+    ROW_BG_1 = "#FFFFFF"
+    ROW_BG_2 = "#F8FAFC"
+    ROW_TEXT = "#0F172A"
+
     mxfile = ET.Element("mxfile", {
         "host": "app.diagrams.net",
-        "modified": "2026-10-22T05:30:00.000Z",
-        "agent": "Antigravity CineManagement Agent",
+        "modified": "2026-10-29T06:05:00.000Z",
+        "agent": "Antigravity Draw.io Generator",
         "version": "21.6.8",
         "type": "device"
     })
 
     diagram = ET.SubElement(mxfile, "diagram", {
-        "id": "CineManagement-Database-ERD",
-        "name": "Database ERD (14 Tables)"
+        "id": "CineManagement-Database-ERD-Clean",
+        "name": "Database ERD (Monochrome Clean)"
     })
 
     mxGraphModel = ET.SubElement(diagram, "mxGraphModel", {
-        "dx": "2200",
-        "dy": "1400",
+        "dx": "2600",
+        "dy": "1600",
         "grid": "1",
         "gridSize": "10",
         "guides": "1",
@@ -37,9 +47,9 @@ def build_drawio_erd():
         "fold": "1",
         "page": "1",
         "pageScale": "1",
-        "pageWidth": "2500",
-        "pageHeight": "1400",
-        "background": "#F8FAFC",
+        "pageWidth": "2800",
+        "pageHeight": "1600",
+        "background": "#FFFFFF",
         "math": "0",
         "shadow": "0"
     })
@@ -48,255 +58,281 @@ def build_drawio_erd():
     ET.SubElement(root, "mxCell", {"id": "0"})
     ET.SubElement(root, "mxCell", {"id": "1", "parent": "0"})
 
-    # Tiêu đề biểu đồ
+    # Tieu de tong quan - KHONG DUNG HTML
     title_cell = ET.SubElement(root, "mxCell", {
         "id": "title_banner",
-        "value": "&lt;b style='font-size: 22px;'&gt;SƠ ĐỒ QUAN HỆ THỰC THỂ CƠ SỞ DỮ LIỆU (DATABASE ERD - 14 BẢNG)&lt;/b&gt;&lt;br&gt;&lt;span style='font-size: 13px; color: #64748B;'&gt;Hệ thống Quản lý và Đặt vé Rạp chiếu phim (CineManagement) | MySQL 10.11 / MariaDB (Port 3306, utf8mb4)&lt;/span&gt;",
-        "style": "text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;",
+        "value": "SO DO THUC THE CO SO DU LIEU (DATABASE ERD - 16 BANG CHUAN 3NF)\nHe thong Quan ly Chuoi Rap Chieu Phim Tap Trung (CineManagement) - MariaDB / MySQL",
+        "style": "text;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=16;fontStyle=1;fontColor=#1E293B;html=0;",
         "vertex": "1",
         "parent": "1"
     })
     ET.SubElement(title_cell, "mxGeometry", {
-        "x": "600",
-        "y": "25",
+        "x": "700",
+        "y": "20",
         "width": "1200",
         "height": "50",
         "as": "geometry"
     })
 
-    # Định nghĩa 14 bảng dữ liệu
+    # Danh sach 16 bang du lieu
     tables = [
-        # Cột 1: Người dùng, Nhân viên, Đánh giá
+        # Cot 1: Cum rap & Phong chieu & Ghe
         {
-            "id": "tbl_users",
-            "name": "AspNetUsers",
-            "color": "#1E3A8A", # Deep Blue
-            "x": 60, "y": 100, "w": 330,
+            "id": "tbl_cinemas",
+            "name": "cinemas",
+            "x": 60, "y": 90, "w": 300,
             "columns": [
-                ("Id", "VARCHAR(255)", True, False),
-                ("UserName", "VARCHAR(256)", False, False),
-                ("Email", "VARCHAR(256)", False, False),
-                ("FullName", "VARCHAR(150)", False, False),
-                ("PhoneNumber", "VARCHAR(20)", False, False),
-                ("PasswordHash", "LONGTEXT", False, False),
-                ("CreatedAt", "DATETIME", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("",   "CinemaCode", "VARCHAR(20)"),
+                ("",   "Name", "VARCHAR(150)"),
+                ("",   "Address", "VARCHAR(255)"),
+                ("",   "City", "VARCHAR(100)"),
+                ("",   "Hotline", "VARCHAR(20)"),
+                ("",   "TotalRooms", "INT"),
+                ("",   "IsActive", "TINYINT(1)")
             ]
         },
         {
-            "id": "tbl_staffs",
-            "name": "Staffs",
-            "color": "#1E3A8A",
-            "x": 60, "y": 420, "w": 330,
+            "id": "tbl_screeningrooms",
+            "name": "screeningrooms",
+            "x": 60, "y": 380, "w": 300,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("UserId", "VARCHAR(255)", False, True),
-                ("Position", "VARCHAR(100)", False, False),
-                ("Department", "VARCHAR(100)", False, False),
-                ("Salary", "DECIMAL(18,2)", False, False),
-                ("IsActive", "TINYINT(1)", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("FK", "CinemaId", "INT"),
+                ("",   "RoomName", "VARCHAR(100)"),
+                ("",   "RoomType", "VARCHAR(50)"),
+                ("",   "TotalRows", "INT"),
+                ("",   "TotalColumns", "INT"),
+                ("",   "TotalSeats", "INT"),
+                ("",   "IsActive", "TINYINT(1)")
             ]
         },
         {
-            "id": "tbl_reviews",
-            "name": "Reviews",
-            "color": "#1E3A8A",
-            "x": 60, "y": 710, "w": 330,
+            "id": "tbl_seattypes",
+            "name": "seattypes",
+            "x": 60, "y": 680, "w": 300,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("UserId", "VARCHAR(255)", False, True),
-                ("MovieId", "INT", False, True),
-                ("Rating", "INT", False, False),
-                ("Comment", "TEXT", False, False),
-                ("CreatedAt", "DATETIME", False, False),
-            ]
-        },
-
-        # Cột 2: Phim, Thể loại, Phòng chiếu, Ghế
-        {
-            "id": "tbl_genres",
-            "name": "Genres",
-            "color": "#065F46", # Emerald
-            "x": 480, "y": 100, "w": 320,
-            "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("Name", "VARCHAR(100)", False, False),
-                ("Description", "TEXT", False, False),
-            ]
-        },
-        {
-            "id": "tbl_movies",
-            "name": "Movies",
-            "color": "#065F46",
-            "x": 480, "y": 290, "w": 320,
-            "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("GenreId", "INT", False, True),
-                ("Title", "VARCHAR(250)", False, False),
-                ("DurationMinutes", "INT", False, False),
-                ("ReleaseDate", "DATETIME", False, False),
-                ("PosterUrl", "VARCHAR(500)", False, False),
-                ("Rating", "DECIMAL(3,1)", False, False),
-            ]
-        },
-        {
-            "id": "tbl_rooms",
-            "name": "ScreeningRooms",
-            "color": "#4338CA", # Indigo
-            "x": 480, "y": 620, "w": 320,
-            "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("RoomName", "VARCHAR(100)", False, False),
-                ("TotalRows", "INT", False, False),
-                ("TotalColumns", "INT", False, False),
-                ("TotalSeats", "INT", False, False),
-                ("ScreenType", "VARCHAR(50)", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("",   "TypeCode", "VARCHAR(20)"),
+                ("",   "TypeName", "VARCHAR(50)"),
+                ("",   "ColorHex", "VARCHAR(10)"),
+                ("",   "Surcharge", "DECIMAL(18,2)"),
+                ("",   "ColSpan", "INT"),
+                ("",   "IsActive", "TINYINT(1)")
             ]
         },
         {
             "id": "tbl_seats",
-            "name": "Seats",
-            "color": "#4338CA",
-            "x": 480, "y": 910, "w": 320,
+            "name": "seats",
+            "x": 60, "y": 960, "w": 300,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("RoomId", "INT", False, True),
-                ("RowName", "VARCHAR(5)", False, False),
-                ("SeatNumber", "INT", False, False),
-                ("SeatType", "VARCHAR(50)", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("FK", "RoomId", "INT"),
+                ("FK", "SeatTypeId", "INT"),
+                ("",   "GridRow", "INT"),
+                ("",   "GridCol", "INT"),
+                ("",   "RowLabel", "VARCHAR(5)"),
+                ("",   "SeatNumber", "INT"),
+                ("",   "ColSpan", "INT"),
+                ("",   "IsActive", "TINYINT(1)")
             ]
         },
 
-        # Cột 3: Suất chiếu & Khóa giữ ghế 10 phút
+        # Cot 2: Phim & Suat chieu & Trang thai ghe
+        {
+            "id": "tbl_genres",
+            "name": "genres",
+            "x": 460, "y": 90, "w": 300,
+            "columns": [
+                ("PK", "Id", "INT AUTO_INC"),
+                ("",   "Name", "VARCHAR(100)"),
+                ("",   "Description", "TEXT")
+            ]
+        },
+        {
+            "id": "tbl_movies",
+            "name": "movies",
+            "x": 460, "y": 260, "w": 300,
+            "columns": [
+                ("PK", "Id", "INT AUTO_INC"),
+                ("FK", "GenreId", "INT"),
+                ("",   "Title", "VARCHAR(250)"),
+                ("",   "DurationMinutes", "INT"),
+                ("",   "ReleaseDate", "DATETIME"),
+                ("",   "EndDate", "DATETIME"),
+                ("",   "PosterUrl", "VARCHAR(500)"),
+                ("",   "Rating", "DECIMAL(3,1)"),
+                ("",   "AgeRating", "VARCHAR(10)")
+            ]
+        },
         {
             "id": "tbl_showtimes",
-            "name": "Showtimes",
-            "color": "#0891B2", # Cyan / Ocean
-            "x": 890, "y": 100, "w": 340,
+            "name": "showtimes",
+            "x": 460, "y": 620, "w": 300,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("MovieId", "INT", False, True),
-                ("RoomId", "INT", False, True),
-                ("StartTime", "DATETIME", False, False),
-                ("EndTime", "DATETIME", False, False),
-                ("BasePrice", "DECIMAL(18,2)", False, False),
-                ("Status", "VARCHAR(50)", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("FK", "MovieId", "INT"),
+                ("FK", "RoomId", "INT"),
+                ("",   "StartTime", "DATETIME"),
+                ("",   "EndTime", "DATETIME"),
+                ("",   "Format", "VARCHAR(50)"),
+                ("",   "BasePrice", "DECIMAL(18,2)"),
+                ("",   "Status", "VARCHAR(50)")
             ]
         },
         {
-            "id": "tbl_bookedseats",
-            "name": "BookedSeats (Hold 10m)",
-            "color": "#0891B2",
-            "x": 890, "y": 440, "w": 340,
+            "id": "tbl_showtimeseats",
+            "name": "showtimeseats",
+            "x": 460, "y": 940, "w": 320,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("ShowtimeId", "INT", False, True),
-                ("SeatId", "INT", False, True),
-                ("BookingId", "INT", False, True),
-                ("Status", "VARCHAR(50)", False, False),
-                ("Price", "DECIMAL(18,2)", False, False),
-                ("HoldExpiresAt", "DATETIME", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("FK", "ShowtimeId", "INT"),
+                ("FK", "SeatId", "INT"),
+                ("",   "Status", "INT (0:Avail, 1:Held, 2:Res)"),
+                ("",   "Price", "DECIMAL(18,2)"),
+                ("",   "HeldByUserId", "VARCHAR(255)"),
+                ("",   "HoldExpiresAt", "DATETIME"),
+                ("",   "Version", "INT [ConcurrencyCheck]"),
+                ("",   "UpdatedAt", "DATETIME")
             ]
         },
 
-        # Cột 4: Đơn đặt vé, Vé điện tử QR, Voucher
+        # Cot 3: Nguoi dung & Dat ve & Ve dien tu
+        {
+            "id": "tbl_aspnetroles",
+            "name": "aspnetroles",
+            "x": 880, "y": 90, "w": 310,
+            "columns": [
+                ("PK", "Id", "VARCHAR(255)"),
+                ("",   "Name", "VARCHAR(256)"),
+                ("",   "NormalizedName", "VARCHAR(256)")
+            ]
+        },
+        {
+            "id": "tbl_aspnetusers",
+            "name": "aspnetusers",
+            "x": 880, "y": 250, "w": 310,
+            "columns": [
+                ("PK", "Id", "VARCHAR(255)"),
+                ("",   "UserName", "VARCHAR(256)"),
+                ("",   "Email", "VARCHAR(256)"),
+                ("",   "FullName", "VARCHAR(150)"),
+                ("",   "PhoneNumber", "VARCHAR(20)"),
+                ("",   "PasswordHash", "LONGTEXT"),
+                ("",   "CreatedAt", "DATETIME")
+            ]
+        },
         {
             "id": "tbl_bookings",
-            "name": "Bookings",
-            "color": "#991B1B", # Crimson / Dark Red
-            "x": 1330, "y": 100, "w": 340,
+            "name": "bookings",
+            "x": 880, "y": 550, "w": 310,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("UserId", "VARCHAR(255)", False, True),
-                ("ShowtimeId", "INT", False, True),
-                ("BookingCode", "VARCHAR(50)", False, False),
-                ("TotalPrice", "DECIMAL(18,2)", False, False),
-                ("FinalAmount", "DECIMAL(18,2)", False, False),
-                ("PaymentMethod", "VARCHAR(50)", False, False),
-                ("PaymentStatus", "VARCHAR(50)", False, False),
-                ("CreatedAt", "DATETIME", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("",   "BookingCode", "VARCHAR(50)"),
+                ("FK", "UserId", "VARCHAR(255)"),
+                ("FK", "ShowtimeId", "INT"),
+                ("",   "TotalAmount", "DECIMAL(18,2)"),
+                ("",   "FinalAmount", "DECIMAL(18,2)"),
+                ("",   "Status", "VARCHAR(50)"),
+                ("",   "PaymentStatus", "VARCHAR(50)"),
+                ("",   "CreatedAt", "DATETIME")
             ]
         },
         {
             "id": "tbl_tickets",
-            "name": "Tickets (QR Code)",
-            "color": "#991B1B",
-            "x": 1330, "y": 480, "w": 340,
+            "name": "tickets",
+            "x": 880, "y": 910, "w": 310,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("BookingId", "INT", False, True),
-                ("BookedSeatId", "INT", False, True),
-                ("TicketCode", "VARCHAR(50)", False, False),
-                ("QrCodeToken", "VARCHAR(255)", False, False),
-                ("Status", "VARCHAR(50)", False, False),
-                ("CheckedInAt", "DATETIME", False, False),
-            ]
-        },
-        {
-            "id": "tbl_vouchers",
-            "name": "Vouchers",
-            "color": "#991B1B",
-            "x": 1330, "y": 800, "w": 340,
-            "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("Code", "VARCHAR(50)", False, False),
-                ("DiscountPercent", "INT", False, False),
-                ("MaxDiscountAmount", "DECIMAL(18,2)", False, False),
-                ("IsActive", "TINYINT(1)", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("FK", "BookingId", "INT"),
+                ("FK", "ShowtimeSeatId", "INT"),
+                ("",   "TicketCode", "VARCHAR(50)"),
+                ("",   "Price", "DECIMAL(18,2)"),
+                ("",   "IsPrinted", "TINYINT(1) [Guard]"),
+                ("",   "PrintedAt", "DATETIME"),
+                ("",   "PrintedByUserId", "VARCHAR(255)"),
+                ("",   "ThermalReceiptCode", "VARCHAR(50)"),
+                ("",   "QrPayload", "VARCHAR(255)")
             ]
         },
 
-        # Cột 5: Bắp nước F&B
+        # Cot 4: Bap nuoc & Thanh toan & Outbox
         {
             "id": "tbl_fooditems",
-            "name": "FoodItems (F&B)",
-            "color": "#B45309", # Amber / Orange
-            "x": 1770, "y": 100, "w": 340,
+            "name": "fooditems / concessions",
+            "x": 1280, "y": 90, "w": 310,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("Name", "VARCHAR(150)", False, False),
-                ("Description", "TEXT", False, False),
-                ("Price", "DECIMAL(18,2)", False, False),
-                ("ImageUrl", "VARCHAR(500)", False, False),
-                ("IsAvailable", "TINYINT(1)", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("",   "Name", "VARCHAR(150)"),
+                ("",   "Description", "TEXT"),
+                ("",   "UnitPrice", "DECIMAL(18,2)"),
+                ("",   "ImageUrl", "VARCHAR(500)"),
+                ("",   "IsActive", "TINYINT(1)")
             ]
         },
         {
-            "id": "tbl_bookingfooditems",
-            "name": "BookingFoodItems",
-            "color": "#B45309",
-            "x": 1770, "y": 420, "w": 340,
+            "id": "tbl_bookingconcessions",
+            "name": "bookingconcessions",
+            "x": 1280, "y": 340, "w": 310,
             "columns": [
-                ("Id", "INT AUTO_INC", True, False),
-                ("BookingId", "INT", False, True),
-                ("FoodItemId", "INT", False, True),
-                ("Quantity", "INT", False, False),
-                ("UnitPrice", "DECIMAL(18,2)", False, False),
+                ("PK", "Id", "INT AUTO_INC"),
+                ("FK", "BookingId", "INT"),
+                ("FK", "ConcessionId", "INT"),
+                ("",   "Quantity", "INT"),
+                ("",   "UnitPrice", "DECIMAL(18,2)"),
+                ("",   "TotalPrice", "DECIMAL(18,2)")
+            ]
+        },
+        {
+            "id": "tbl_payments",
+            "name": "payments",
+            "x": 1280, "y": 600, "w": 310,
+            "columns": [
+                ("PK", "Id", "INT AUTO_INC"),
+                ("FK", "BookingId", "INT"),
+                ("",   "TransactionCode", "VARCHAR(100)"),
+                ("",   "PaymentMethod", "VARCHAR(50)"),
+                ("",   "Amount", "DECIMAL(18,2)"),
+                ("",   "Status", "VARCHAR(50)"),
+                ("",   "PaidAt", "DATETIME")
+            ]
+        },
+        {
+            "id": "tbl_outboxmessages",
+            "name": "outboxmessages",
+            "x": 1280, "y": 900, "w": 310,
+            "columns": [
+                ("PK", "Id", "VARCHAR(36)"),
+                ("",   "Type", "VARCHAR(100)"),
+                ("",   "Payload", "LONGTEXT"),
+                ("",   "IsProcessed", "TINYINT(1)"),
+                ("",   "RetryCount", "INT"),
+                ("",   "CreatedAt", "DATETIME"),
+                ("",   "ProcessedAt", "DATETIME"),
+                ("",   "ErrorMessage", "TEXT")
             ]
         }
     ]
 
-    row_height = 26
     header_height = 30
+    row_height = 22
 
     for tbl in tables:
         h = header_height + len(tbl["columns"]) * row_height
-        table_style = (
-            f"swimlane;fontStyle=1;align=center;verticalAlign=top;"
-            f"childLayout=stackLayout;horizontal=1;startSize={header_height};"
-            f"horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;"
-            f"collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;"
-            f"fillColor={tbl['color']};fontColor=#FFFFFF;strokeColor={tbl['color']};"
-            f"strokeWidth=2;fontSize=13;fontFamily=Helvetica;shadow=1;rounded=1;"
-        )
-
-        tbl_cell = ET.SubElement(root, "mxCell", {
+        
+        # Header bang - THUAN TEXT, KHONG DUNG HTML
+        tbl_box = ET.SubElement(root, "mxCell", {
             "id": tbl["id"],
-            "value": f"<b>{tbl['name']}</b>",
-            "style": table_style,
+            "value": tbl["name"],
+            "style": (
+                f"swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize={header_height};"
+                f"fillColor={HEADER_BG};fontColor={HEADER_TEXT};strokeColor={BORDER_COLOR};strokeWidth=1.5;"
+                f"rounded=0;shadow=0;swimlaneFillColor=#FFFFFF;fontFamily=Helvetica;fontSize=12;html=0;"
+            ),
             "vertex": "1",
             "parent": "1"
         })
-        ET.SubElement(tbl_cell, "mxGeometry", {
+        ET.SubElement(tbl_box, "mxGeometry", {
             "x": str(tbl["x"]),
             "y": str(tbl["y"]),
             "width": str(tbl["w"]),
@@ -304,23 +340,22 @@ def build_drawio_erd():
             "as": "geometry"
         })
 
-        for idx, (col_name, col_type, is_pk, is_fk) in enumerate(tbl["columns"]):
+        for idx, (badge, col_name, col_type) in enumerate(tbl["columns"]):
             col_id = f"{tbl['id']}_{col_name.lower()}"
-            if is_pk:
-                badge = "&lt;font color='#DC2626'&gt;&lt;b&gt;[PK]&lt;/b&gt;&lt;/font&gt; "
-            elif is_fk:
-                badge = "&lt;font color='#2563EB'&gt;&lt;b&gt;[FK]&lt;/b&gt;&lt;/font&gt; "
+            if badge:
+                prefix = f"[{badge}] "
             else:
-                badge = "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; "
-
-            col_val = f"{badge}<b>{col_name}</b> : &lt;i style='color: #64748B;'&gt;{col_type}&lt;/i&gt;"
-            bg_color = "#FFFFFF" if idx % 2 == 0 else "#F8FAFC"
+                prefix = "      "
+            
+            # Format text thuan tuy, ro rang, de doc
+            col_val = f"{prefix}{col_name} : {col_type}"
+            bg_color = ROW_BG_1 if idx % 2 == 0 else ROW_BG_2
             
             cell_style = (
                 f"text;strokeColor=none;fillColor={bg_color};align=left;verticalAlign=middle;"
                 f"spacingLeft=8;spacingRight=8;overflow=hidden;rotatable=0;"
-                f"points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;"
-                f"fontColor=#0F172A;fontSize=11;fontFamily=Helvetica;"
+                f"points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=0;"
+                f"fontColor={ROW_TEXT};fontSize=11;fontFamily=Consolas;"
             )
 
             c_elem = ET.SubElement(root, "mxCell", {
@@ -337,29 +372,31 @@ def build_drawio_erd():
                 "as": "geometry"
             })
 
+    # Quan he giua cac bang - THUAN TEXT
     relations = [
-        ("rel_genres_movies", "tbl_genres", "tbl_movies", "1 : N (GenreId)", 0.5, 1, 0.5, 0),
-        ("rel_movies_showtimes", "tbl_movies", "tbl_showtimes", "1 : N (MovieId)", 1, 0.3, 0, 0.3),
-        ("rel_rooms_showtimes", "tbl_rooms", "tbl_showtimes", "1 : N (RoomId)", 1, 0.3, 0, 0.7),
+        ("rel_cinemas_rooms", "tbl_cinemas", "tbl_screeningrooms", "1 : N (CinemaId)", 0.5, 1, 0.5, 0),
         ("rel_rooms_seats", "tbl_rooms", "tbl_seats", "1 : N (RoomId)", 0.5, 1, 0.5, 0),
-        ("rel_users_staffs", "tbl_users", "tbl_staffs", "1 : 1 (UserId)", 0.5, 1, 0.5, 0),
-        ("rel_users_reviews", "tbl_users", "tbl_reviews", "1 : N (UserId)", 0.3, 1, 0.3, 0),
-        ("rel_movies_reviews", "tbl_movies", "tbl_reviews", "1 : N (MovieId)", 0, 0.8, 1, 0.3),
-        ("rel_showtimes_bookedseats", "tbl_showtimes", "tbl_bookedseats", "1 : N (ShowtimeId)", 0.5, 1, 0.5, 0),
-        ("rel_seats_bookedseats", "tbl_seats", "tbl_bookedseats", "1 : N (SeatId)", 1, 0.5, 0, 0.8),
-        ("rel_users_bookings", "tbl_users", "tbl_bookings", "1 : N (UserId)", 1, 0.2, 0, 0.2),
-        ("rel_showtimes_bookings", "tbl_showtimes", "tbl_bookings", "1 : N (ShowtimeId)", 1, 0.5, 0, 0.5),
-        ("rel_bookings_bookedseats", "tbl_bookings", "tbl_bookedseats", "1 : N (BookingId)", 0, 0.7, 1, 0.3),
+        ("rel_types_seats", "tbl_seattypes", "tbl_seats", "1 : N (SeatTypeId)", 0.5, 1, 0.5, 0),
+        ("rel_genres_movies", "tbl_genres", "tbl_movies", "1 : N (GenreId)", 0.5, 1, 0.5, 0),
+        ("rel_movies_showtimes", "tbl_movies", "tbl_showtimes", "1 : N (MovieId)", 0.5, 1, 0.5, 0),
+        ("rel_rooms_showtimes", "tbl_screeningrooms", "tbl_showtimes", "1 : N (RoomId)", 1, 0.5, 0, 0.3),
+        ("rel_showtimes_seats", "tbl_showtimes", "tbl_showtimeseats", "1 : N (ShowtimeId)", 0.5, 1, 0.5, 0),
+        ("rel_seats_showtimeseats", "tbl_seats", "tbl_showtimeseats", "1 : N (SeatId)", 1, 0.5, 0, 0.5),
+        ("rel_roles_users", "tbl_aspnetroles", "tbl_aspnetusers", "N : N", 0.5, 1, 0.5, 0),
+        ("rel_users_bookings", "tbl_aspnetusers", "tbl_bookings", "1 : N (UserId)", 0.5, 1, 0.5, 0),
+        ("rel_showtimes_bookings", "tbl_showtimes", "tbl_bookings", "1 : N (ShowtimeId)", 1, 0.5, 0, 0.3),
         ("rel_bookings_tickets", "tbl_bookings", "tbl_tickets", "1 : N (BookingId)", 0.5, 1, 0.5, 0),
-        ("rel_bookedseats_tickets", "tbl_bookedseats", "tbl_tickets", "1 : 1 (BookedSeatId)", 1, 0.6, 0, 0.5),
-        ("rel_bookings_bfi", "tbl_bookings", "tbl_bookingfooditems", "1 : N (BookingId)", 1, 0.5, 0, 0.3),
-        ("rel_fooditems_bfi", "tbl_fooditems", "tbl_bookingfooditems", "1 : N (FoodItemId)", 0.5, 1, 0.5, 0),
+        ("rel_showtimeseats_tickets", "tbl_showtimeseats", "tbl_tickets", "1 : 1", 1, 0.5, 0, 0.5),
+        ("rel_food_concessions", "tbl_fooditems", "tbl_bookingconcessions", "1 : N (ConcessionId)", 0.5, 1, 0.5, 0),
+        ("rel_bookings_concessions", "tbl_bookings", "tbl_bookingconcessions", "1 : N (BookingId)", 1, 0.3, 0, 0.5),
+        ("rel_bookings_payments", "tbl_bookings", "tbl_payments", "1 : N (BookingId)", 1, 0.6, 0, 0.5),
+        ("rel_bookings_outbox", "tbl_bookings", "tbl_outboxmessages", "1 : N (BookingId)", 1, 0.8, 0, 0.3),
     ]
 
     edge_style = (
-        "edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;"
-        "strokeColor=#334155;strokeWidth=2;fontFamily=Helvetica;fontSize=10;fontColor=#475569;"
-        "startArrow=ERmandOne;startFill=0;endArrow=ERmany;endFill=0;"
+        f"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;"
+        f"strokeColor={LINE_COLOR};strokeWidth=1.5;fontFamily=Helvetica;fontSize=10;fontColor=#000000;"
+        f"startArrow=ERmandOne;startFill=0;endArrow=ERmany;endFill=0;"
     )
 
     for edge_id, src, tgt, lbl, ex_x, ex_y, en_x, en_y in relations:
@@ -377,36 +414,43 @@ def build_drawio_erd():
             "as": "geometry"
         })
 
-    legend_box = ET.SubElement(root, "mxCell", {
-        "id": "legend_box",
-        "value": (
-            "&lt;b style='font-size: 13px;'&gt;CHÚ THÍCH PHÂN HỆ VÀ CƠ CHẾ DỮ LIỆU:&lt;/b&gt;&lt;br&gt;"
-            "&lt;span style='color: #1E3A8A;'&gt;■ Identity &amp; Users&lt;/span&gt; | "
-            "&lt;span style='color: #065F46;'&gt;■ Movies &amp; Genres&lt;/span&gt; | "
-            "&lt;span style='color: #4338CA;'&gt;■ Rooms &amp; Seats&lt;/span&gt; | "
-            "&lt;span style='color: #0891B2;'&gt;■ Showtimes &amp; Hold 10m&lt;/span&gt; | "
-            "&lt;span style='color: #991B1B;'&gt;■ Bookings &amp; Tickets QR&lt;/span&gt; | "
-            "&lt;span style='color: #B45309;'&gt;■ Concessions F&amp;B&lt;/span&gt;&lt;br&gt;"
-            "&lt;i style='color: #64748B;'&gt;• [PK]: Khóa chính | [FK]: Khóa ngoại | Ký hiệu quan hệ chuẩn Crow's Foot: ||―&amp;lt; (1 : N)&lt;/i&gt;"
-        ),
-        "style": "html=1;whiteSpace=wrap;rounded=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;align=center;verticalAlign=middle;shadow=0;",
-        "vertex": "1",
-        "parent": "1"
-    })
-    ET.SubElement(legend_box, "mxGeometry", {
-        "x": "480",
-        "y": "1150",
-        "width": "1190",
-        "height": "65",
-        "as": "geometry"
-    })
-
+    # Ghi ra tep .drawio bang ElementTree
     tree = ET.ElementTree(mxfile)
-    ET.indent(tree, space="  ", level=0)
-    
-    output_path = "CineManagement_Database_ERD.drawio"
-    tree.write(output_path, encoding="utf-8", xml_declaration=True)
-    print(f"[OK] Đã tạo thành công file Draw.io: {output_path}")
+    output_drawio = "../CineManagement_Database_ERD.drawio"
+    tree.write(output_drawio, encoding="utf-8", xml_declaration=True)
+    print(f"[OK] Clean Plaintext Draw.io generated: {output_drawio}")
 
-if __name__ == "__main__":
-    build_drawio_erd()
+    # Ghi ra tep Viewer HTML
+    xml_str = ET.tostring(mxfile, encoding="utf-8").decode("utf-8")
+    viewer_html = f"""<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>CineManagement - Database ERD 3NF (Clean Monochrome)</title>
+    <script type="text/javascript" src="https://viewer.diagrams.net/js/viewer-static.min.js"></script>
+    <style>
+        body {{ margin: 0; padding: 0; background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
+        .header {{ background: #1E293B; color: #FFFFFF; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }}
+        .btn {{ background: #3B82F6; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; }}
+        .container {{ width: 100vw; height: calc(100vh - 60px); overflow: hidden; }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <span style="font-size: 16px; font-weight: 600;">CineManagement - Database ERD 3NF (16 Bảng Đơn Sắc - Clean Plaintext)</span>
+            <span style="font-size: 12px; color: #94A3B8; margin-left: 12px;">MariaDB 10.11 / MySQL | Port 3306 & 3307</span>
+        </div>
+        <a class="btn" href="https://app.diagrams.net/#Uhttps%3A%2F%2Fraw.githubusercontent.com%2FIR3lI%2FCinema-Managment%2Fmain%2FCineManagement_Database_ERD.drawio" target="_blank">Mở trên Diagrams.net ↗</a>
+    </div>
+    <div class="container">
+        <div class="mxgraph" style="max-width:100%;border:1px solid transparent;" data-mxgraph="{xml_str.replace('"', '&quot;')}"></div>
+    </div>
+</body>
+</html>"""
+    with open("../CineManagement_ERD_Viewer.html", "w", encoding="utf-8") as f:
+        f.write(viewer_html)
+    print("[OK] Clean Viewer HTML generated: ../CineManagement_ERD_Viewer.html")
+
+if __name__ == '__main__':
+    generate_clean_erd()
