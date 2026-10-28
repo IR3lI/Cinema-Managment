@@ -92,8 +92,10 @@ public class AccountController : Controller
             if (user != null)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Admin") || roles.Contains("Staff"))
+                if (roles.Contains("Admin"))
                     return RedirectToAction("Dashboard", "Admin");
+                if (roles.Contains("Staff"))
+                    return RedirectToAction("Index", "Counter");
             }
 
             if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
@@ -111,7 +113,12 @@ public class AccountController : Controller
     public IActionResult AdminLogin()
     {
         if (_signInManager.IsSignedIn(User))
-            return RedirectToAction("Dashboard", "Admin");
+        {
+            if (User.IsInRole("Admin"))
+                return RedirectToAction("Dashboard", "Admin");
+            if (User.IsInRole("Staff"))
+                return RedirectToAction("Index", "Counter");
+        }
         return View(new LoginViewModel());
     }
 
@@ -130,12 +137,14 @@ public class AccountController : Controller
             if (user != null)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Admin") || roles.Contains("Staff"))
+                if (roles.Contains("Admin"))
                     return RedirectToAction("Dashboard", "Admin");
+                if (roles.Contains("Staff"))
+                    return RedirectToAction("Index", "Counter");
 
                 // Not admin/staff – sign out and show error
                 await _signInManager.SignOutAsync();
-                ModelState.AddModelError(string.Empty, "Tài khoản không có quyền truy cập Admin Panel.");
+                ModelState.AddModelError(string.Empty, "Tài khoản không có quyền truy cập hệ thống quản trị / quầy POS.");
                 return View(model);
             }
         }
@@ -195,7 +204,6 @@ public class AccountController : Controller
             return View(model);
         }
 
-        // Handle avatar upload with IFileStorageService
         if (model.AvatarFile != null && model.AvatarFile.Length > 0)
         {
             if (!string.IsNullOrEmpty(user.AvatarUrl))
@@ -227,15 +235,32 @@ public class AccountController : Controller
     private async Task PopulateProfileStatsAsync(ApplicationUser user, ProfileViewModel vm)
     {
         var roles = await _userManager.GetRolesAsync(user);
-        vm.RoleName = roles.FirstOrDefault() switch
-        {
-            "Admin" => "Quản trị viên",
-            "Staff" => "Nhân viên rạp",
-            _       => "Thành viên thân thiết"
-        };
+        vm.IsAdmin = roles.Contains("Admin");
+        vm.IsStaff = roles.Contains("Staff") || vm.IsAdmin;
+        vm.RoleName = vm.IsAdmin ? "Quản trị viên" : (vm.IsStaff ? "Nhân viên quầy vé" : "Thành viên thân thiết");
         vm.Email = user.Email;
         vm.CreatedAt = user.CreatedAt;
         vm.AvatarUrl = user.AvatarUrl;
+
+        if (vm.IsStaff)
+        {
+            var staff = await _context.Staffs.FirstOrDefaultAsync(s => s.UserId == user.Id);
+            if (staff != null)
+            {
+                vm.Position = !string.IsNullOrEmpty(staff.Position) ? staff.Position : (vm.IsAdmin ? "Quản lý hệ thống" : "Nhân viên quầy POS");
+                vm.Department = !string.IsNullOrEmpty(staff.Department) ? staff.Department : "Quầy vé & Dịch vụ F&B";
+                vm.HireDate = staff.HireDate;
+                vm.StaffCode = $"NV-{staff.StaffId:D4}";
+            }
+            else
+            {
+                vm.Position = vm.IsAdmin ? "Tổng Quản trị hệ thống" : "Nhân viên quầy POS";
+                vm.Department = "Ban Vận hành Hệ thống";
+                vm.StaffCode = vm.IsAdmin ? "ADMIN-01" : $"NV-{user.Id.Substring(0, 4).ToUpper()}";
+            }
+
+            vm.CheckedInCount = await _context.Tickets.CountAsync(t => t.PrintedByUserId == user.Id || t.CheckedInByUserId == user.Id);
+        }
 
         var bookings = await _context.Bookings
             .Include(b => b.Tickets)

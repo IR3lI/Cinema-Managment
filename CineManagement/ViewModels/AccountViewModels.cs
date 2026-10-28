@@ -89,6 +89,15 @@ public class ProfileViewModel
     public int TotalBookings { get; set; }
     public decimal TotalSpent { get; set; }
     public int TotalTickets { get; set; }
+
+    // ── Staff Profile Info ──────────────────────────────────────────────────
+    public bool IsStaff { get; set; }
+    public bool IsAdmin { get; set; }
+    public string? Position { get; set; }
+    public string? Department { get; set; }
+    public DateTime? HireDate { get; set; }
+    public string? StaffCode { get; set; }
+    public int CheckedInCount { get; set; }
 }
 
 // ── Change Password ───────────────────────────────────────────────────────────

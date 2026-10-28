@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] – CineManagement</title>
+    <title>@ViewData["Title"] – CineStar Cinema</title>
     
     <!-- Tailwind CSS v4 -->
     <script src="https://unpkg.com/@@tailwindcss/browser@4"></script>
@@ -40,9 +40,9 @@
         <div class="flex items-center justify-center gap-2 mb-8">
             <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2.5 group">
                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:scale-105 transition-transform">
-                    <i class="ph-bold ph-film-strip text-2xl"></i>
+                    <i class="ph-bold ph-film-slate text-2xl"></i>
                 </div>
-                <span class="text-xl font-bold tracking-tight text-zinc-100">CineManagement</span>
+                <span class="text-xl font-bold tracking-tight text-zinc-100">Cine<span class="text-emerald-400">Star</span> Admin</span>
             </a>
         </div>
 
@@ -124,7 +124,7 @@
         </div>
 
         <p class="text-center text-xs text-zinc-600 mt-6">
-            &copy; @DateTime.Now.Year CineManagement. Tất cả quyền được bảo lưu.
+            &copy; @DateTime.Now.Year CineStar Cinema. Tất cả quyền được bảo lưu.
         </p>
     </div>
 

@@ -1,4 +1,26 @@
+# ROLE & CONTEXT
+Bạn là Senior Full-Stack Architect. Chúng ta đang nâng cấp và tái cấu trúc (refactor) một dự án "vibe code" thành Hệ thống Đặt vé & Quản lý Rạp chiếu phim chuyên nghiệp (phạm vi 1 rạp độc lập - Single Cinema).
+
+# CORE ARCHITECTURAL RULES (BẮT BUỘC TUÂN THỦ)
+1. **Tách biệt Ghế vật lý và Trạng thái ghế theo suất chiếu:**
+   - Bảng `seats` CHỈ lưu cấu trúc vật lý của phòng chiếu.
+   - Bảng `showtime_seats` lưu trạng thái (`AVAILABLE`, `HELD`, `BOOKED`), `held_until`, `held_by_user_id` và `version` (Optimistic Locking) cho từng suất chiếu cụ thể.
+2. **Hệ tọa độ Sơ đồ ghế 2D Grid (Hỗ trợ Ghế Đơn, Ghế Đôi & Hành lang):**
+   - Phòng chiếu (`auditoriums`) định nghĩa kích thước lưới thông qua `total_rows` và `total_cols`.
+   - Bảng `seat_types` có trường `col_span` (`1` cho ghế Standard/VIP, `2` cho ghế Couple/Sweetbox) và `surcharge_price` (phụ thu).
+   - Bảng `seats` lưu tọa độ `grid_row` (số nguyên >= 1) và `grid_col` (số nguyên >= 1), cùng với nhãn hiển thị `row_label` (A, B, C...) và `seat_number` (1, 2, 3...).
+   - **Hành lang (Aisle):** Được biểu diễn tự nhiên bằng cách bỏ trống các tọa độ `(grid_row, grid_col)` tương ứng trên lưới (ví dụ: cột 4 là ghế A4, cột 5 bỏ trống làm hành lang, ghế A5 sẽ có `grid_col = 6`).
+3. **Quy trình làm việc:**
+   - Trước khi viết hoặc sửa code ở mỗi Phase, hãy liệt kê các file dự định thay đổi.
+   - Không tự ý xóa các cấu hình môi trường (`.env`) hiện có.
+   - Viết code sạch, có xử lý lỗi (Error Handling), Transaction rõ ràng và tuân thủ đúng Tech Stack hiện tại của project.
+
+
 ---
+
+
+
+
 name: design-taste-frontend
 description: Anti-slop frontend skill for landing pages, portfolios, and redesigns. The agent reads the brief, infers the right design direction, and ships interfaces that do not look templated. Real design systems when applicable, audit-first on redesigns, strict pre-flight check.
 ---

@@ -18,83 +18,78 @@
         FoodCategory.Snack   => "🍟",
         _                    => "🛒"
     };
-    static string CatGradient(FoodCategory c) => c switch {
-        FoodCategory.Combo   => "from-amber-500/20 to-orange-500/10",
-        FoodCategory.Popcorn => "from-yellow-500/20 to-amber-500/10",
-        FoodCategory.Drink   => "from-sky-500/20 to-blue-500/10",
-        FoodCategory.Snack   => "from-red-500/20 to-rose-500/10",
-        _                    => "from-zinc-500/20 to-zinc-500/10"
-    };
     static string CatAccent(FoodCategory c) => c switch {
-        FoodCategory.Combo   => "text-amber-400",
-        FoodCategory.Popcorn => "text-yellow-400",
-        FoodCategory.Drink   => "text-sky-400",
-        FoodCategory.Snack   => "text-red-400",
-        _                    => "text-zinc-400"
-    };
-    static string CatBorder(FoodCategory c) => c switch {
-        FoodCategory.Combo   => "border-amber-500/40",
-        FoodCategory.Popcorn => "border-yellow-500/40",
-        FoodCategory.Drink   => "border-sky-500/40",
-        FoodCategory.Snack   => "border-red-500/40",
-        _                    => "border-zinc-500/40"
+        FoodCategory.Combo   => "text-amber-700",
+        FoodCategory.Popcorn => "text-yellow-700",
+        FoodCategory.Drink   => "text-sky-700",
+        FoodCategory.Snack   => "text-rose-700",
+        _                    => "text-stone-700"
     };
 }
 
 @section Styles {
 <style>
-    .fnb-card { transition: all .2s ease; border: 1.5px solid #27272a; }
-    .fnb-card:hover { border-color: #3f3f46; transform: translateY(-2px); }
-    .fnb-card.has-item { border-color: #10b981 !important; box-shadow: 0 0 0 1px #10b98140; }
+    .fnb-card { transition: all .2s ease; border: 1.5px solid #E7E2D9; background: #FFFFFF; }
+    .fnb-card:hover { border-color: #D6CEBE; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+    .fnb-card.has-item { border-color: #059669 !important; background: #F0FDF4; box-shadow: 0 0 0 1px #059669; }
     .qty-circle {
         width: 32px; height: 32px; border-radius: 50%; display: flex;
         align-items: center; justify-content: center; font-weight: 700;
         font-size: .9rem; cursor: pointer; border: none; transition: all .15s;
     }
-    .qty-minus { background: #27272a; color: #a1a1aa; }
-    .qty-minus:hover { background: #3f3f46; color: #fff; }
-    .qty-plus  { background: #10b981; color: #fff; }
-    .qty-plus:hover  { background: #059669; }
+    .qty-minus { background: #F5F5F4; color: #57534E; }
+    .qty-minus:hover { background: #E7E5E4; color: #1C1917; }
+    .qty-plus  { background: #059669; color: #fff; }
+    .qty-plus:hover  { background: #047857; }
     .qty-val   {
         width: 36px; text-align: center; background: transparent; border: none;
-        color: #fff; font-weight: 700; font-size: .95rem;
+        color: #1C1917; font-weight: 800; font-size: .95rem;
     }
     .qty-val:focus { outline: none; }
     .cart-line { animation: slideIn .2s ease; }
     @@keyframes slideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-    .cat-tab { transition: all .15s; }
-    .cat-tab.active { background: #10b981; color: #fff !important; }
-    .cat-tab:not(.active):hover { background: #27272a; }
+    .cat-tab { transition: all .15s; cursor: pointer; }
+    .cat-tab.active { background: #059669 !important; color: #fff !important; border-color: #059669 !important; }
+    .cat-tab:not(.active):hover { background: #F5F5F4; }
 </style>
 }
 
 <!-- Step progress bar -->
 <div class="flex items-center gap-2 mb-8 text-sm">
-    <span class="flex items-center gap-1.5 text-zinc-500"><span class="w-6 h-6 rounded-full bg-zinc-700 text-zinc-400 flex items-center justify-center text-xs font-bold">1</span>Chọn ghế</span>
-    <div class="flex-1 h-px bg-zinc-800"></div>
-    <span class="flex items-center gap-1.5 text-emerald-400 font-medium"><span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">2</span>Đồ ăn & nước</span>
-    <div class="flex-1 h-px bg-zinc-800"></div>
-    <span class="flex items-center gap-1.5 text-zinc-500"><span class="w-6 h-6 rounded-full bg-zinc-800 text-zinc-500 flex items-center justify-center text-xs font-bold">3</span>Thanh toán</span>
+    <span class="flex items-center gap-1.5 text-stone-500">
+        <span class="w-6 h-6 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center text-xs font-bold">1</span>
+        Chọn ghế
+    </span>
+    <div class="flex-1 h-px bg-stone-300"></div>
+    <span class="flex items-center gap-1.5 text-emerald-700 font-semibold">
+        <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+        Đồ ăn & nước
+    </span>
+    <div class="flex-1 h-px bg-stone-300"></div>
+    <span class="flex items-center gap-1.5 text-stone-500">
+        <span class="w-6 h-6 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center text-xs font-bold">3</span>
+        Thanh toán
+    </span>
 </div>
 
 <form id="fnbForm" asp-action="AddFnB" asp-route-bookingId="@Model.BookingId" method="post">
-<div class="flex gap-6 items-start">
+<div class="flex flex-col lg:flex-row gap-6 items-start">
 
     <!-- Left: F&B Items -->
-    <div class="flex-1 min-w-0">
+    <div class="flex-1 w-full min-w-0">
         <div class="mb-5">
-            <h4 class="text-xl font-semibold text-zinc-100 mb-1">🍿 Thêm Đồ ăn & Nước uống</h4>
-            <p class="text-zinc-500 text-sm">Tuỳ chọn – Thêm đồ ăn vào đơn để tiết kiệm thời gian tại quầy</p>
+            <h4 class="text-2xl font-black text-stone-900 mb-1">🍿 Thêm Đồ ăn &amp; Nước uống</h4>
+            <p class="text-stone-500 text-xs">Tuỳ chọn – Đặt trước để nhận đồ ăn nhanh chóng tại quầy rạp mà không cần chờ đợi</p>
         </div>
 
         <!-- Category Tabs -->
         <div class="flex gap-2 mb-6 flex-wrap">
-            <button type="button" class="cat-tab active px-4 py-1.5 rounded-full text-sm font-medium text-zinc-300 border border-zinc-700" data-cat="all">
-                Tất cả
+            <button type="button" class="cat-tab active px-4 py-2 rounded-xl text-xs font-bold text-stone-700 bg-white border border-[#E7E2D9] shadow-2xs" data-cat="all">
+                Tất cả món
             </button>
             @foreach (var g in grouped)
             {
-                <button type="button" class="cat-tab px-4 py-1.5 rounded-full text-sm font-medium text-zinc-400 border border-zinc-800" data-cat="@((int)g.Key)">
+                <button type="button" class="cat-tab px-4 py-2 rounded-xl text-xs font-bold text-stone-600 bg-white border border-[#E7E2D9] shadow-2xs" data-cat="@((int)g.Key)">
                     @CatEmoji(g.Key) @CatLabel(g.Key)
                 </button>
             }
@@ -104,40 +99,38 @@
         @foreach (var group in grouped)
         {
             <div class="cat-section mb-8" data-cat-id="@((int)group.Key)">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="text-2xl">@CatEmoji(group.Key)</span>
-                    <h6 class="font-semibold @CatAccent(group.Key) text-sm uppercase tracking-widest">@CatLabel(group.Key)</h6>
-                    <div class="flex-1 h-px bg-zinc-800"></div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-xl">@CatEmoji(group.Key)</span>
+                    <h6 class="font-bold @CatAccent(group.Key) text-xs uppercase tracking-wider">@CatLabel(group.Key)</h6>
+                    <div class="flex-1 h-px bg-stone-200"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     @foreach (var item in group)
                     {
-                        <div class="fnb-card rounded-2xl bg-gradient-to-br @CatGradient(group.Key) bg-zinc-900 p-4 cursor-default"
+                        <div class="fnb-card rounded-2xl p-4 cursor-default shadow-2xs"
                              id="card_@item.FoodItemId">
                             <div class="flex items-center gap-3">
                                 <!-- Icon / Image -->
-                                <div class="w-16 h-16 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center
-                                            border @CatBorder(group.Key)"
-                                     style="background:rgba(0,0,0,.3)">
+                                <div class="w-20 h-20 rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center bg-stone-100 border border-stone-200/90 shadow-2xs group">
                                     @if (!string.IsNullOrEmpty(item.ImageUrl))
                                     {
-                                        <img src="@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover" />
+                                        <img src="@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" loading="lazy" />
                                     }
                                     else
                                     {
-                                        <span style="font-size:2rem">@CatEmoji(group.Key)</span>
+                                        <span class="text-3xl">@CatEmoji(group.Key)</span>
                                     }
                                 </div>
 
                                 <!-- Info -->
                                 <div class="flex-1 min-w-0">
-                                    <div class="font-semibold text-zinc-100 text-sm leading-tight mb-0.5 truncate">@item.Name</div>
+                                    <div class="font-bold text-stone-900 text-sm leading-tight mb-0.5 truncate">@item.Name</div>
                                     @if (!string.IsNullOrEmpty(item.Description))
                                     {
-                                        <div class="text-xs text-zinc-500 mb-1 line-clamp-1">@item.Description</div>
+                                        <div class="text-[11px] text-stone-500 mb-1 line-clamp-1 font-normal">@item.Description</div>
                                     }
-                                    <div class="font-bold text-emerald-400">@item.Price.ToString("N0") đ</div>
+                                    <div class="font-black text-emerald-700 text-sm">@item.Price.ToString("N0") đ</div>
                                 </div>
 
                                 <!-- Quantity control -->
@@ -157,8 +150,8 @@
                                 </div>
                             </div>
 
-                            <!-- Item subtotal badge (shown when qty > 0) -->
-                            <div id="sub_@item.FoodItemId" class="mt-2 text-right text-xs text-emerald-400 font-medium"
+                            <!-- Item subtotal badge -->
+                            <div id="sub_@item.FoodItemId" class="mt-2 text-right text-xs text-emerald-700 font-bold"
                                  style="display:@(item.Quantity > 0 ? "block" : "none")">
                                 @item.Quantity × @item.Price.ToString("N0") = @((item.Quantity * item.Price).ToString("N0")) đ
                             </div>
@@ -170,53 +163,54 @@
     </div>
 
     <!-- Right: Sticky cart summary -->
-    <div class="w-80 flex-shrink-0 sticky top-24">
-        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur overflow-hidden">
+    <div class="w-full lg:w-80 flex-shrink-0 lg:sticky top-24">
+        <div class="rounded-2xl border border-[#E7E2D9] bg-white shadow-sm overflow-hidden">
 
             <!-- Header -->
-            <div class="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
-                <span class="font-semibold text-zinc-100">Đơn hàng của bạn</span>
-                <span class="text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full" id="itemCount">0 món</span>
+            <div class="px-5 py-4 border-b border-stone-200 bg-stone-50/50 flex items-center justify-between">
+                <span class="font-bold text-stone-900 text-sm uppercase tracking-wider">Đơn hàng của bạn</span>
+                <span class="text-xs font-bold text-stone-600 bg-stone-200 px-2 py-0.5 rounded-full" id="itemCount">0 món</span>
             </div>
 
             <!-- Seat row -->
-            <div class="px-5 py-3 border-b border-zinc-800/60">
+            <div class="px-5 py-3 border-b border-stone-200">
                 <div class="flex justify-between items-center text-sm">
-                    <span class="text-zinc-400 flex items-center gap-1.5">
-                        <i class="ph ph-seat text-zinc-500"></i> Ghế
+                    <span class="text-stone-600 flex items-center gap-1.5 font-medium">
+                        <i class="ph ph-armchair text-emerald-600"></i> Tiền vé ghế
                     </span>
-                    <span class="text-zinc-200 font-medium">@Model.SeatTotal.ToString("N0") đ</span>
+                    <span class="text-stone-900 font-bold">@Model.SeatTotal.ToString("N0") đ</span>
                 </div>
             </div>
 
             <!-- F&B cart lines -->
-            <div id="cartLines" class="px-5 py-3 min-h-[60px] space-y-2 border-b border-zinc-800/60">
-                <div id="emptyCart" class="text-center py-4 text-zinc-600 text-sm">
+            <div id="cartLines" class="px-5 py-3 min-h-[60px] space-y-2 border-b border-stone-200">
+                <div id="emptyCart" class="text-center py-4 text-stone-400 text-xs">
                     <i class="ph ph-shopping-cart text-2xl block mb-1"></i>
-                    Chưa chọn đồ ăn
+                    Chưa chọn đồ ăn hoặc nước uống
                 </div>
             </div>
 
             <!-- Totals -->
             <div class="px-5 py-4 space-y-2">
-                <div class="flex justify-between text-sm text-zinc-400">
-                    <span>Đồ ăn & nước</span>
-                    <span id="fnbTotal" class="text-zinc-200">0 đ</span>
+                <div class="flex justify-between text-xs text-stone-600">
+                    <span>Đồ ăn &amp; nước:</span>
+                    <span id="fnbTotal" class="text-stone-900 font-bold">0 đ</span>
                 </div>
-                <div class="flex justify-between text-base font-bold text-zinc-100 pt-2 border-t border-zinc-800">
-                    <span>Tạm tính</span>
-                    <span class="text-emerald-400" id="grandTotal">@Model.SeatTotal.ToString("N0") đ</span>
+                <div class="flex justify-between text-base font-bold text-stone-900 pt-2 border-t border-stone-200">
+                    <span>Tạm tính:</span>
+                    <span class="text-xl font-black text-emerald-700" id="grandTotal">@Model.SeatTotal.ToString("N0") đ</span>
                 </div>
             </div>
 
             <!-- Actions -->
-            <div class="px-5 pb-5 space-y-2">
+            <div class="px-5 pb-5 space-y-2.5">
                 <button type="submit" form="fnbForm"
-                        class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
-                    <i class="ph ph-arrow-right"></i> Tiếp theo: Thanh toán
+                        class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
+                    <span>Tiếp tục: Thanh toán</span>
+                    <i class="ph ph-arrow-right"></i>
                 </button>
                 <a asp-action="SelectSeat" asp-route-showtimeId="@Model.ShowtimeId"
-                   class="w-full py-2.5 rounded-xl border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                   class="w-full py-2.5 rounded-xl border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5">
                     <i class="ph ph-arrow-left"></i> Quay lại chọn ghế
                 </a>
             </div>
@@ -229,7 +223,6 @@
 <script>
     const seatTotal = @Model.SeatTotal;
 
-    // item registry: { id -> { name, price } }
     const registry = {
         @foreach (var item in Model.Items)
         {
@@ -251,7 +244,6 @@
         const card = document.getElementById('card_' + id);
         const sub  = document.getElementById('sub_' + id);
 
-        // Card highlight
         if (qty > 0) {
             card.classList.add('has-item');
             sub.style.display = 'block';
@@ -278,7 +270,6 @@
             }
         });
 
-        // Cart lines
         const container = document.getElementById('cartLines');
         const empty     = document.getElementById('emptyCart');
         if (lines.length === 0) {
@@ -289,12 +280,12 @@
             container.innerHTML = '';
             lines.forEach(l => {
                 const div = document.createElement('div');
-                div.className = 'cart-line flex justify-between items-center text-sm';
+                div.className = 'cart-line flex justify-between items-center text-xs py-1';
                 div.innerHTML =
-                    '<span class="text-zinc-300 truncate flex-1 mr-2">' +
-                        '<span class="text-zinc-500 mr-1">×' + l.qty + '</span>' + l.name +
+                    '<span class="text-stone-800 truncate flex-1 mr-2">' +
+                        '<span class="text-stone-400 font-bold mr-1">×' + l.qty + '</span>' + l.name +
                     '</span>' +
-                    '<span class="text-emerald-400 font-medium flex-shrink-0">' +
+                    '<span class="text-emerald-700 font-bold flex-shrink-0">' +
                         (l.qty * l.price).toLocaleString('vi-VN') + ' đ' +
                     '</span>';
                 container.appendChild(div);
@@ -306,7 +297,6 @@
         document.getElementById('grandTotal').textContent = (seatTotal + fnbTotal).toLocaleString('vi-VN') + ' đ';
     }
 
-    // Category tab filter
     document.querySelectorAll('.cat-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
@@ -318,7 +308,6 @@
         });
     });
 
-    // Init (for pre-filled quantities)
     Object.keys(registry).forEach(id => syncQty(id));
 </script>
 }

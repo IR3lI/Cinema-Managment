@@ -32,16 +32,16 @@
                     <div class="card-body">
                         <div class="row text-center mb-3">
                             <div class="col-4">
-                                <div class="fw-bold fs-4 text-primary">@(room.Rows * room.SeatsPerRow)</div>
+                                <div class="fw-bold fs-4 text-primary">@(room.Capacity > 0 ? room.Capacity : (room.TotalRows * room.TotalCols))</div>
                                 <small class="text-muted">Tổng ghế</small>
                             </div>
                             <div class="col-4">
-                                <div class="fw-bold fs-4 text-success">@room.Rows</div>
+                                <div class="fw-bold fs-4 text-success">@room.TotalRows</div>
                                 <small class="text-muted">Hàng</small>
                             </div>
                             <div class="col-4">
-                                <div class="fw-bold fs-4 text-info">@room.SeatsPerRow</div>
-                                <small class="text-muted">Ghế/hàng</small>
+                                <div class="fw-bold fs-4 text-info">@room.TotalCols</div>
+                                <small class="text-muted">Cột ma trận</small>
                             </div>
                         </div>
                         @if (!string.IsNullOrEmpty(room.Description))
@@ -57,15 +57,18 @@
                         </div>
                     </div>
                     <div class="card-footer bg-transparent border-0 d-flex gap-2">
-                        <a asp-action="Details" asp-route-id="@room.RoomId" class="btn btn-sm btn-outline-info flex-fill">
+                        <a asp-action="Details" asp-route-id="@room.RoomId" class="btn btn-sm btn-outline-info flex-fill" title="Xem sơ đồ 2D">
                             <i class="bi bi-grid-3x3 me-1"></i>Sơ đồ ghế
                         </a>
-                        <a asp-action="Edit" asp-route-id="@room.RoomId" class="btn btn-sm btn-outline-primary">
+                        <a asp-action="LayoutBuilder" asp-route-id="@room.RoomId" class="btn btn-sm btn-outline-success" title="Studio Thiết Kế Sơ Đồ Lưới">
+                            <i class="bi bi-grid-3x3-gap-fill me-1"></i>Studio
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@room.RoomId" class="btn btn-sm btn-outline-primary" title="Sửa thông số">
                             <i class="bi bi-pencil"></i>
                         </a>
                         <form asp-action="Delete" asp-route-id="@room.RoomId" method="post" class="d-inline"
                               onsubmit="return confirm('Vô hiệu hóa phòng này?')">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Vô hiệu hóa">
                                 <i class="bi bi-slash-circle"></i>
                             </button>
                         </form>

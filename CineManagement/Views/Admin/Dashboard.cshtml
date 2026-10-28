@@ -51,12 +51,50 @@
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
-        <div class="card stat-card bg-danger text-white shadow-sm h-100">
-            <div class="card-body p-3 text-center">
-                <i class="bi bi-cash-stack fs-2 opacity-75"></i>
-                <div class="fs-3 fw-bold mt-1" style="font-size:1.2rem!important">@(((decimal)ViewBag.TodayRevenue).ToString("N0"))đ</div>
-                <div class="small opacity-75">Doanh thu hôm nay</div>
+        <a asp-action="Reports" class="text-decoration-none">
+            <div class="card stat-card bg-danger text-white shadow-sm h-100 hover-shadow">
+                <div class="card-body p-3 text-center">
+                    <i class="bi bi-cash-stack fs-2 opacity-75"></i>
+                    <div class="fs-3 fw-bold mt-1" style="font-size:1.2rem!important">@(((decimal)ViewBag.TodayRevenue).ToString("N0"))đ</div>
+                    <div class="small opacity-75">Doanh thu hôm nay <i class="bi bi-arrow-right-short"></i></div>
+                </div>
             </div>
+        </a>
+    </div>
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white d-flex flex-row align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 bg-success-subtle text-success rounded-3 fs-3">
+                    <i class="bi bi-qr-code-scan"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">Soát vé vào rạp (QR Scanner)</h6>
+                    <small class="text-muted">Quét mã QR qua camera điện thoại hoặc nhập mã vé</small>
+                </div>
+            </div>
+            <a asp-controller="Admin" asp-action="ScanTicket" class="btn btn-success btn-sm px-3 fw-semibold">
+                Mở máy quét
+            </a>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white d-flex flex-row align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 bg-info-subtle text-info rounded-3 fs-3">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">Báo cáo &amp; Phân tích Doanh thu</h6>
+                    <small class="text-muted">Top phim doanh thu cao nhất, phân tích vé &amp; combo theo ngày</small>
+                </div>
+            </div>
+            <a asp-controller="Admin" asp-action="Reports" class="btn btn-primary btn-sm px-3 fw-semibold">
+                Xem báo cáo
+            </a>
         </div>
     </div>
 </div>
