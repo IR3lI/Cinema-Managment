@@ -326,10 +326,14 @@ public class BookingController : Controller
         var booking = await GetMyBookingAsync(bookingId);
         if (booking == null) return NotFound();
 
+        if (booking.Status == BookingStatus.Expired) return RedirectToSeatSelection(booking);
         if (booking.Status != BookingStatus.Pending)
         {
             return RedirectToAction(nameof(Confirmation), new { bookingId });
         }
+
+        var holdExpiresAt = await GetActiveHoldDeadlineAsync(booking);
+        if (holdExpiresAt == null) return RedirectToSeatSelection(booking);
 
         // Đảm bảo có bản ghi Payment Pending với mã giao dịch chuẩn
         var payment = await _paymentService.GetPaymentByBookingIdAsync(bookingId);
@@ -357,12 +361,6 @@ public class BookingController : Controller
         var seatTotal = booking.Tickets.Sum(bs => bs.UnitPrice);
         var fnbTotal = booking.BookingConcessions.Sum(bf => bf.UnitPrice * bf.Quantity);
 
-        // Tính thời gian hết hạn giữ chỗ dựa trên ShowtimeSeats
-        var ticketSeatIds = booking.Tickets.Select(t => t.SeatId).ToList();
-        var holdExpiresAt = await _context.ShowtimeSeats
-            .Where(ss => ss.ShowtimeId == booking.ShowtimeId && ticketSeatIds.Contains(ss.SeatId) && ss.Status == ShowtimeSeatStatus.Held)
-            .MaxAsync(ss => (DateTime?)ss.HoldExpiresAt) ?? booking.BookingTime.AddMinutes(HoldMinutes);
-
         var txCode = payment.TransactionCode ?? $"PAY-{booking.BookingCode}";
         var qrPayload = _paymentService.GenerateVietQrPayload(booking.FinalAmount, txCode, $"Ve xem phim {booking.BookingCode}");
         var qrImageUrl = _paymentService.GenerateVietQrQuickLink(booking.FinalAmount, txCode);
@@ -381,7 +379,7 @@ public class BookingController : Controller
             TransactionCode = txCode,
             VietQrPayload = qrPayload,
             VietQrImageUrl = qrImageUrl,
-            HoldExpiresAt = holdExpiresAt
+            HoldExpiresAt = holdExpiresAt.Value
         });
     }
 
@@ -448,23 +446,7 @@ public class BookingController : Controller
             return RedirectToAction(nameof(Checkout), new { bookingId });
         }
 
-        var now = DateTime.UtcNow;
-        var seatIds = booking.Tickets.Select(t => t.SeatId).Distinct().ToList();
-
-        // Kiểm tra giữ chỗ trên ShowtimeSeats còn hiệu lực không
-        var invalidSeats = await _context.ShowtimeSeats
-            .AnyAsync(ss => ss.ShowtimeId == booking.ShowtimeId
-                         && seatIds.Contains(ss.SeatId)
-                         && (ss.Status != ShowtimeSeatStatus.Held || ss.HeldByUserId != booking.UserId || ss.HoldExpiresAt <= now));
-
-        if (invalidSeats)
-        {
-            booking.Status = BookingStatus.Expired;
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
-            TempData["Error"] = "Thời gian giữ ghế đã hết. Vui lòng đặt lại.";
-            return RedirectToAction("Index", "Home");
-        }
+        if (await GetActiveHoldDeadlineAsync(booking) == null) return RedirectToSeatSelection(booking);
 
         var method = paymentMethod switch
         {
@@ -587,6 +569,32 @@ public class BookingController : Controller
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+    private async Task<DateTime?> GetActiveHoldDeadlineAsync(Booking booking)
+    {
+        var seats = booking.Tickets
+            .Where(t => t.Status == TicketStatus.Held && t.ShowtimeSeatId.HasValue)
+            .Select(t => t.ShowtimeSeatId!.Value)
+            .Distinct()
+            .ToList();
+        if (seats.Count == 0 || seats.Count != booking.Tickets.Count) return null;
+
+        var deadlines = await _context.ShowtimeSeats
+            .Where(ss => ss.ShowtimeId == booking.ShowtimeId && seats.Contains(ss.ShowtimeSeatId)
+                         && ss.Status == ShowtimeSeatStatus.Held && ss.HeldByUserId == booking.UserId)
+            .Select(ss => ss.HoldExpiresAt)
+            .ToListAsync();
+
+        if (deadlines.Count != seats.Count || deadlines.Any(deadline => !deadline.HasValue)) return null;
+        var earliest = deadlines.Min();
+        return earliest > DateTime.UtcNow ? earliest : null;
+    }
+
+    private IActionResult RedirectToSeatSelection(Booking booking)
+    {
+        TempData["Error"] = "Thời gian giữ ghế đã hết. Vui lòng chọn lại ghế.";
+        return RedirectToAction(nameof(SelectSeat), new { showtimeId = booking.ShowtimeId });
+    }
+
     private async Task<Booking?> GetMyBookingAsync(int bookingId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;

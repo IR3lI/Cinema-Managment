@@ -6,12 +6,11 @@
     var defaultEmail = User.Identity?.Name?.Contains("@") == true ? User.Identity.Name : (b.User?.Email ?? b.ContactEmail ?? "");
     var initialFinalAmount = Model.FinalAmount > 0 ? Model.FinalAmount : (Model.SubTotal - Model.DiscountAmount);
 
-    long holdUntilMs = Model.HoldExpiresAt.HasValue
-        ? (long)(Model.HoldExpiresAt.Value.ToUniversalTime() - DateTime.UnixEpoch).TotalMilliseconds
-        : (long)(DateTime.UtcNow.AddMinutes(10) - DateTime.UnixEpoch).TotalMilliseconds;
+    // MySQL stores UTC clock values without recording the DateTime kind.
+    var holdRemainingMs = Math.Max(0L, (long)(Model.HoldExpiresAt - DateTime.UtcNow).TotalMilliseconds);
 }
 
-<div data-holduntil="@holdUntilMs" id="checkoutHoldUntilData" style="display:none"></div>
+<div data-remaining-ms="@holdRemainingMs" id="checkoutHoldData" style="display:none"></div>
 
 @section Styles {
 <style>
@@ -81,7 +80,7 @@
     </div>
     <div class="flex items-center gap-2 bg-white px-4 py-1.5 rounded-xl border border-amber-300 shadow-xs">
         <i class="ph ph-clock text-amber-600 font-bold"></i>
-        <span id="checkoutTimer" class="text-amber-800 font-black text-lg tabular-nums">09:59</span>
+        <span id="checkoutTimer" class="text-amber-800 font-black text-lg tabular-nums">--:--</span>
     </div>
 </div>
 
@@ -418,25 +417,28 @@
     });
 
     // ── Countdown Timer Synchronization ───────────────────────────────
-    const holdData = document.getElementById('checkoutHoldUntilData');
-    const holdUntilMs = parseInt(holdData?.dataset?.holduntil || '0');
+    const holdRemainingMs = Number(document.getElementById('checkoutHoldData').dataset.remainingMs);
     const timerEl = document.getElementById('checkoutTimer');
 
-    if (holdUntilMs > 0 && timerEl) {
+    if (timerEl) {
+        const deadline = performance.now() + holdRemainingMs;
+        const timer = setInterval(updateTimer, 1000);
+
         function updateTimer() {
-            const remaining = holdUntilMs - Date.now();
+            const remaining = deadline - performance.now();
             if (remaining <= 0) {
                 timerEl.textContent = '00:00';
-                alert('Thời gian giữ vé của bạn đã hết hạn! Vui lòng chọn lại ghế để tiếp tục.');
-                window.location.href = '/Booking/SelectSeat?showtimeId=@b.ShowtimeId';
+                clearInterval(timer);
+                // Let checkout decide whether to redirect or show a confirmed booking.
+                window.location.reload();
                 return;
             }
-            const mins = Math.floor(remaining / 60000);
-            const secs = Math.floor((remaining % 60000) / 1000);
+            const secondsLeft = Math.ceil(remaining / 1000);
+            const mins = Math.floor(secondsLeft / 60);
+            const secs = secondsLeft % 60;
             timerEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
         updateTimer();
-        setInterval(updateTimer, 1000);
     }
 
     // ── Polling kiểm tra trạng thái thanh toán tự động mỗi 3 giây ──────

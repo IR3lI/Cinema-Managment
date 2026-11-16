@@ -3,8 +3,9 @@
     ViewData["Title"] = "Chọn ghế – " + Model.Showtime.Movie?.Title;
     Layout = "_Layout";
     var holdUntil = ViewBag.HoldUntil as DateTime?;
-    long holdUntilMs = holdUntil.HasValue
-        ? (long)(holdUntil.Value.ToUniversalTime() - DateTime.UnixEpoch).TotalMilliseconds : 0;
+    // The database stores the hold deadline in UTC.
+    var holdRemainingMs = holdUntil.HasValue
+        ? Math.Max(0L, (long)(holdUntil.Value - DateTime.UtcNow).TotalMilliseconds) : 0;
 
     string RoomTypeBadge(RoomType t) => t switch {
         RoomType.VIP  => "bg-amber-500/20 text-amber-300 border-amber-500/30",
@@ -18,7 +19,7 @@
     };
 }
 
-<div data-holduntil="@holdUntilMs" id="holduntilData" style="display:none"></div>
+<div data-remaining-ms="@holdRemainingMs" id="seatHoldData" style="display:none"></div>
 
 @section Styles {
 <style>
@@ -594,25 +595,27 @@
     }
 
     // ── Countdown Timer ──────────────────────────────────────────────
-    const holdUntilData = document.getElementById('holduntilData');
-    const holdUntilMs = parseInt(holdUntilData.dataset.holduntil || '0');
+    const holdRemainingMs = Number(document.getElementById('seatHoldData').dataset.remainingMs);
     const countdownEl = document.getElementById('countdown');
 
-    if (holdUntilMs > 0 && countdownEl) {
+    if (countdownEl) {
+        const deadline = performance.now() + holdRemainingMs;
+        const timer = setInterval(tick, 1000);
+
         function tick() {
-            const diff = holdUntilMs - Date.now();
-            if (diff <= 0) {
+            const remaining = deadline - performance.now();
+            if (remaining <= 0) {
                 countdownEl.textContent = '00:00';
-                alert('Thời gian giữ chỗ của bạn đã hết. Vui lòng tải lại trang để chọn lại ghế!');
+                clearInterval(timer);
                 location.reload();
                 return;
             }
-            const mins = Math.floor(diff / 60000);
-            const secs = Math.floor((diff % 60000) / 1000);
+            const secondsLeft = Math.ceil(remaining / 1000);
+            const mins = Math.floor(secondsLeft / 60);
+            const secs = secondsLeft % 60;
             countdownEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
         tick();
-        setInterval(tick, 1000);
     }
 </script>
 }

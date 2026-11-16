@@ -95,7 +95,7 @@ public class CheckoutViewModel
     public string? TransactionCode { get; set; }
     public string? VietQrPayload { get; set; }
     public string? VietQrImageUrl { get; set; }
-    public DateTime? HoldExpiresAt { get; set; }
+    public DateTime HoldExpiresAt { get; set; }
 }
 
 // ── Confirmation ViewModel ───────────────────────────────────────────────────
