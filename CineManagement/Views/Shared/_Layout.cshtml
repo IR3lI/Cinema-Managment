@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Options.IOptions<CineManagement.Modules.CustomerSupport.OllamaOptions> ChatOptions
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -40,6 +41,10 @@
         .text-zinc-500 { color: #78716C !important; }
         .text-zinc-600 { color: #A8A29E !important; }
     </style>
+    @if (ChatOptions.Value.Enabled)
+    {
+        <link rel="stylesheet" href="~/css/customer-chat.css" asp-append-version="true" />
+    }
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="antialiased min-h-[100dvh] flex flex-col selection:bg-emerald-200 selection:text-emerald-950">
@@ -162,6 +167,10 @@
         </div>
     </footer>
 
+    @if (ChatOptions.Value.Enabled)
+    {
+        <partial name="_CustomerChat" />
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

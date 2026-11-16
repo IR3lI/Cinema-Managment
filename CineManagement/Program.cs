@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using CineManagement.Data;
 using CineManagement.Hubs;
 using CineManagement.Models;
+using CineManagement.Modules.CustomerSupport;
 using CineManagement.Services;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -129,6 +130,7 @@ builder.Services.AddCatalogModule();
 builder.Services.AddTicketingModule();
 builder.Services.AddOrderingModule();
 builder.Services.AddPaymentsModule();
+builder.Services.AddCustomerSupportModule(builder.Configuration);
 
 // ── Smtp Options & SignalR ─────────────────────────────────────────────────
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(SmtpOptions.SectionName));
@@ -209,6 +211,7 @@ if (Directory.Exists(uploadsPhysical))
 
 app.UseRouting();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();

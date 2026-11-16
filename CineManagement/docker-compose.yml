@@ -30,6 +30,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - DOTNET_RUNNING_IN_CONTAINER=true
+      - Ollama__Enabled=${CINESTAR_CHAT_ENABLED:-true}
+      - Ollama__BaseUrl=${OLLAMA_BASE_URL:-http://host.docker.internal:11434/}
+      - Ollama__Model=${OLLAMA_MODEL:-qwen3:4b}
       - ConnectionStrings__DefaultConnection=Server=mariadb;Port=3306;Database=cinemanagement_db;User=cinema_user;Password=cinema_secure_pass_2026;
       - Storage__Provider=CloudflareR2
       - Storage__ServiceUrl=${CLOUDFLARE_R2_URL:-http://minio:9000}
