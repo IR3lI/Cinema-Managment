@@ -1,0 +1,37 @@
+<section class="cine-chat" data-cine-chat data-endpoint="@Url.Action("Send", "CustomerChat")" aria-label="Hỗ trợ khách hàng">
+    <button class="cine-chat__trigger" type="button" aria-haspopup="dialog" aria-controls="cine-chat-dialog" aria-expanded="false">
+        <i class="ph-fill ph-chat-circle-dots" aria-hidden="true"></i>
+        <span>Hỏi CineStar</span>
+    </button>
+    <dialog id="cine-chat-dialog" class="cine-chat__dialog" aria-labelledby="cine-chat-title">
+        <header class="cine-chat__header">
+            <span class="cine-chat__icon" aria-hidden="true"><i class="ph-fill ph-film-slate"></i></span>
+            <div class="cine-chat__brand">
+                <h2 id="cine-chat-title">Trợ lý CineStar</h2>
+                <p>Phim, suất chiếu và chi nhánh</p>
+            </div>
+            <button class="cine-chat__header-button" type="button" data-chat-reset title="Bắt đầu lại" aria-label="Bắt đầu lại">
+                <i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>
+            </button>
+            <button class="cine-chat__header-button" type="button" data-chat-close title="Đóng" aria-label="Đóng cửa sổ chat" autofocus>
+                <i class="ph ph-x" aria-hidden="true"></i>
+            </button>
+        </header>
+        <div class="cine-chat__messages" data-chat-messages role="log" aria-label="Hội thoại" tabindex="0">
+            <p class="cine-chat__bubble">Chào bạn! Mình có thể giúp tìm phim, tra suất chiếu theo chi nhánh hoặc hướng dẫn đặt vé.</p>
+        </div>
+        <div class="cine-chat__quick" data-chat-quick aria-label="Câu hỏi gợi ý">
+            <button type="button">Phim đang chiếu</button>
+            <button type="button">Lịch chiếu hôm nay</button>
+            <button type="button">Danh sách chi nhánh</button>
+            <button type="button">Cách đặt vé</button>
+        </div>
+        <p class="cine-chat__status" data-chat-status role="status" hidden></p>
+        <form class="cine-chat__form" method="post" action="@Url.Action("Send", "CustomerChat")" asp-antiforgery="false">
+            @Html.AntiForgeryToken()
+            <input type="text" name="message" maxlength="450" autocomplete="off" required aria-label="Câu hỏi của bạn" placeholder="Ví dụ: Ngày mai có phim gì?" />
+            <button type="submit" aria-label="Gửi câu hỏi">Gửi</button>
+        </form>
+    </dialog>
+</section>
+<script src="~/js/customer-chat.js" asp-append-version="true" defer></script>
